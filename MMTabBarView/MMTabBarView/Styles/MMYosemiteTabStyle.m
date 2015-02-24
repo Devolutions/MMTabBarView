@@ -199,8 +199,8 @@
     }
     
     [[NSColor colorWithCalibratedWhite:0.576 alpha:1.0] set];
-    [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMinY(rect) + 0.5)
-                              toPoint:NSMakePoint(NSMaxX(rect), NSMinY(rect) + 0.5)];
+//    [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMinY(rect) + 0.5)
+//                              toPoint:NSMakePoint(NSMaxX(rect), NSMinY(rect) + 0.5)];
     
     [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect) - 0.5)
                               toPoint:NSMakePoint(NSMaxX(rect), NSMaxY(rect) - 0.5)];

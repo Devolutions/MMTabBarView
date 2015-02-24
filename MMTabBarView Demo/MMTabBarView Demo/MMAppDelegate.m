@@ -21,6 +21,7 @@
     [[NSColorPanel sharedColorPanel] setShowsAlpha:YES];
 
 	[self newWindow:self];
+    
 }
 - (IBAction)newWindow:(id)sender {
         // create window controller
@@ -30,7 +31,10 @@
         // add the default tabs
 	[newWindowController addDefaultTabs];
         // finally show the window
-	[newWindowController showWindow:self];    
+	[newWindowController showWindow:self];
+
+    [[newWindowController window] setTitleVisibility:NSWindowTitleHidden];
+    [[newWindowController window] setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
 }
 
 @end
