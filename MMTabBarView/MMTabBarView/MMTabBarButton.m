@@ -170,10 +170,7 @@ NSString *kMMTabBarButtonOberserverContext = @"MMTabBarView.MMTabBarButton.Obser
 
     if ([[self tabBarView] sizeButtonsToFit])
         {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:
-            ^{
-            [[self tabBarView] update];
-            }];
+			[[self tabBarView] setNeedsUpdate:YES];
         }
     
 }  // -setTitle:
@@ -297,10 +294,7 @@ NSString *kMMTabBarButtonOberserverContext = @"MMTabBarView.MMTabBarButton.Obser
         {
         if ([[self tabBarView] sizeButtonsToFit])
             {
-            [[NSOperationQueue mainQueue] addOperationWithBlock:
-                ^{
-                [[self tabBarView] update];
-                }];
+				[[self tabBarView] setNeedsUpdate:YES];
             }
         }
  
