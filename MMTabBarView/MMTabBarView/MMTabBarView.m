@@ -2232,8 +2232,11 @@ static NSMutableDictionary *registeredStyleClasses = nil;
     }
      
     [tabViewItem retain];
-    [_tabView removeTabViewItem:tabViewItem];
-     
+    if ([_tabView indexOfTabViewItem:tabViewItem] != NSNotFound)
+    {
+        [_tabView removeTabViewItem:tabViewItem];
+    }
+    
     if (([self delegate]) && ([[self delegate] respondsToSelector:@selector(tabView:didCloseTabViewItem:)])) {
          [[self delegate] tabView:_tabView didCloseTabViewItem:tabViewItem];
     }
