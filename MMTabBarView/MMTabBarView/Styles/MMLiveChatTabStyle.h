@@ -10,17 +10,19 @@
 #import "MMTabStyle.h"
 #import "NSBezierPath+MMTabBarViewExtensions.h"
 
-@interface MMLiveChatTabStyle : NSObject <MMTabStyle> {
+@interface MMLiveChatTabStyle : NSObject <MMTabStyle>
+{
+	CGFloat _leftMarginForTabBarView;
+	
+	@private
 	NSImage				*liveChatCloseButton;
 	NSImage				*liveChatCloseButtonDown;
 	NSImage				*liveChatCloseButtonOver;
 	NSImage				*liveChatCloseDirtyButton;
 	NSImage				*liveChatCloseDirtyButtonDown;
 	NSImage				*liveChatCloseDirtyButtonOver;
-
+	
 	NSDictionary		*_objectCountStringAttributes;
-
-	CGFloat				_leftMargin;
 }
 
 @property (assign) CGFloat leftMarginForTabBarView;

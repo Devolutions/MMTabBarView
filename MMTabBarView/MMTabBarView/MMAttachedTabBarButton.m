@@ -13,21 +13,14 @@
 #import "MMTabStyle.h"
 #import "NSView+MMTabBarViewExtensions.h"
 
-@interface MMAttachedTabBarButton (/*Private*/)
-
-- (MMAttachedTabBarButton *)_selectedAttachedTabBarButton;
-- (NSRect)_draggingRect;
-
+@interface MMAttachedTabBarButton ()
 @end
 
 @implementation MMAttachedTabBarButton
 
 @synthesize tabViewItem = _tabViewItem;
-@dynamic slidingFrame;
 @synthesize isInAnimatedSlide = _isInAnimatedSlide;
 @synthesize isInDraggedSlide = _isInDraggedSlide;
-@dynamic isSliding;
-@dynamic isOverflowButton;
 
 + (void)initialize {
     [super initialize];    
@@ -37,11 +30,11 @@
     return [MMAttachedTabBarButtonCell class];
 }
 
-- (id)initWithFrame:(NSRect)frame tabViewItem:(NSTabViewItem *)anItem {
+- (instancetype)initWithFrame:(NSRect)frame tabViewItem:(NSTabViewItem *)anItem {
 
     self = [super initWithFrame:frame];
     if (self) {
-        _tabViewItem = [anItem retain];
+        _tabViewItem = anItem;
         _isInAnimatedSlide = NO;
         _isInDraggedSlide = NO;
     }
@@ -49,18 +42,16 @@
     return self;
 }
 
-- (id)initWithFrame:(NSRect)frame {
+- (instancetype)initWithFrame:(NSRect)frame {
 
     NSAssert(FALSE,@"please use designated initializer -initWithFrame:tabViewItem:");
 
-    [self release];
     return nil;
 }
 
 - (void)dealloc
 {
-    [_tabViewItem release], _tabViewItem = nil;
-    [super dealloc];
+    _tabViewItem = nil;
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -84,7 +75,7 @@
 }
 
 #pragma mark -
-#pragma mark Accessors
+#pragma mark Properties
 
 - (NSRect)slidingFrame {
     @synchronized(self) {
@@ -215,11 +206,11 @@
         
 	[tabBarView lockFocus];
     [tabBarView display];  // forces update to ensure that we get current state
-	NSBitmapImageRep *rep = [[[NSBitmapImageRep alloc] initWithFocusedViewRect:draggingRect] autorelease];
+	NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:draggingRect];
 	[tabBarView unlockFocus];
-	NSImage *image = [[[NSImage alloc] initWithSize:[rep size]] autorelease];
+	NSImage *image = [[NSImage alloc] initWithSize:[rep size]];
 	[image addRepresentation:rep];
-	NSImage *returnImage = [[[NSImage alloc] initWithSize:[rep size]] autorelease];
+	NSImage *returnImage = [[NSImage alloc] initWithSize:[rep size]];
 	[returnImage lockFocus];
     [image drawAtPoint:NSMakePoint(0.0, 0.0) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 	[returnImage unlockFocus];
@@ -229,7 +220,6 @@
 		NSPoint indicatorPoint = NSMakePoint([self frame].size.width - MARGIN_X - kMMTabBarIndicatorWidth, MARGIN_Y);
         [pi drawAtPoint:indicatorPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 		[returnImage unlockFocus];
-		[pi release];
 	}
 	return returnImage;
 }
@@ -243,6 +233,26 @@
 
 - (void)slideAnimationDidEnd {
     _isInAnimatedSlide = NO;
+}
+
+#pragma mark -
+#pragma mark NSCoding
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+
+    self = [super initWithCoder:coder];
+    if (self) {
+        _tabViewItem = nil;
+        _isInAnimatedSlide = NO;
+        _isInDraggedSlide = NO;
+    }
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [super encodeWithCoder:aCoder];
 }
 
 #pragma mark -

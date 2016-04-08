@@ -12,15 +12,15 @@
 
 @interface MMCardTabStyle : NSObject <MMTabStyle>
 {
-    NSImage *cardCloseButton;
-    NSImage *cardCloseButtonDown;
-    NSImage *cardCloseButtonOver;
-    NSImage *cardCloseDirtyButton;
-    NSImage *cardCloseDirtyButtonDown;
-    NSImage *cardCloseDirtyButtonOver;
-	    
-    CGFloat _horizontalInset;
-    CGFloat _topMargin;
+	CGFloat _horizontalInset;
+	
+	@private
+	NSImage *cardCloseButton;
+	NSImage *cardCloseButtonDown;
+	NSImage *cardCloseButtonOver;
+	NSImage *cardCloseDirtyButton;
+	NSImage *cardCloseDirtyButtonDown;
+	NSImage *cardCloseDirtyButtonOver;
 }
 
 @property (assign) CGFloat horizontalInset;

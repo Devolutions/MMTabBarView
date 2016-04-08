@@ -11,25 +11,11 @@
 #import "MMAttachedTabBarButton.h"
 #import "NSView+MMTabBarViewExtensions.h"
 #import "NSBezierPath+MMTabBarViewExtensions.h"
-
-@interface MMTabBarView(SharedPrivates)
-
-- (void)_drawInteriorInRect:(NSRect)rect;
-- (NSRect)_addTabButtonRect;
-- (NSRect)_overflowButtonRect;
-
-@end
-
-@interface MMCardTabStyle (/*Private*/)
-
-- (void)_drawBezelInRect:(NSRect)aRect withCapMask:(MMBezierShapeCapMask)capMask usingStatesOfAttachedButton:(MMAttachedTabBarButton *)button ofTabBarView:(MMTabBarView *)tabBarView;
-
-@end
+#import "MMTabBarView.Private.h"
 
 @implementation MMCardTabStyle
 
-@synthesize horizontalInset = _horizontalInset;
-@synthesize topMargin = _topMargin;
+@synthesize horizontalInset	= _horizontalInset;
 
 + (NSString *)name {
     return @"Card";
@@ -42,7 +28,7 @@
 #pragma mark -
 #pragma mark Creation/Destruction
 
-- (id) init {
+- (instancetype) init {
     if ( (self = [super init]) ) {
         cardCloseButton = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabClose_Front"]];
         cardCloseButtonDown = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabClose_Front_Pressed"]];
@@ -58,14 +44,12 @@
 }
 
 - (void)dealloc {
-    [cardCloseButton release], cardCloseButton = nil;
-    [cardCloseButtonDown release], cardCloseButtonDown = nil;
-    [cardCloseButtonOver release], cardCloseButtonOver = nil;
-    [cardCloseDirtyButton release], cardCloseDirtyButton = nil;
-    [cardCloseDirtyButtonDown release], cardCloseDirtyButtonDown = nil;
-    [cardCloseDirtyButtonOver release], cardCloseDirtyButtonOver = nil;
-    
-    [super dealloc];
+    cardCloseButton = nil;
+    cardCloseButtonDown = nil;
+    cardCloseButtonOver = nil;
+    cardCloseDirtyButton = nil;
+    cardCloseDirtyButtonDown = nil;
+    cardCloseDirtyButtonOver = nil;
 }
 
 #pragma mark -
@@ -181,7 +165,6 @@
     if (gradient) {
         [gradient drawInRect:bounds angle:270];
     
-        [gradient release];
         }
 
     bounds = [tabBarView bounds];
@@ -271,7 +254,7 @@
 
         if (gradient != nil) {
             [gradient drawInBezierPath:fillPath angle:90.0f];
-            [gradient release], gradient = nil;
+            gradient = nil;
             }
     } else {
         [[NSColor windowBackgroundColor] set];

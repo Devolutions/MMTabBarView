@@ -18,19 +18,12 @@
 	NSImage					*_closeDirtyButtonDown;
 	NSImage					*_closeDirtyButtonOver;
 	NSImage					*_gradientImage;
-
-	BOOL					_drawsUnified;
-	BOOL					_drawsRight;
+	
+	BOOL _drawsUnified;
+	BOOL _drawsRight;
 }
 
-- (void)loadImages;
-
-- (BOOL)drawsUnified;
-- (void)setDrawsUnified:(BOOL)value;
-- (BOOL)drawsRight;
-- (void)setDrawsRight:(BOOL)value;
-
-- (void)encodeWithCoder:(NSCoder *)aCoder;
-- (id)initWithCoder:(NSCoder *)aDecoder;
+@property (assign) BOOL drawsUnified;
+@property (assign) BOOL drawsRight;
 
 @end
