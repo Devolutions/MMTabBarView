@@ -12,13 +12,14 @@
 
 @interface MMTabBarController : NSObject <NSMenuDelegate>
 {
+	@private
 	MMTabBarView	*_tabBarView;
 	NSMenu			*_overflowMenu;
 }
 
-- (id)initWithTabBarView:(MMTabBarView *)aTabBarView;
+- (instancetype)initWithTabBarView:(MMTabBarView *)aTabBarView;
 
-- (NSMenu *)overflowMenu;
+@property (readonly) NSMenu *overflowMenu;
 
 - (void)layoutButtons;
 

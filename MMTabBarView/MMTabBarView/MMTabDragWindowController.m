@@ -12,10 +12,10 @@
 
 @implementation MMTabDragWindowController
 
-- (id)initWithImage:(NSImage *)image styleMask:(NSUInteger)styleMask tearOffStyle:(MMTabBarTearOffStyle)tearOffStyle {
+- (instancetype)initWithImage:(NSImage *)image styleMask:(NSUInteger)styleMask tearOffStyle:(MMTabBarTearOffStyle)tearOffStyle {
 	MMTabDragWindow *window = [MMTabDragWindow dragWindowWithImage:image styleMask:styleMask];
 	if ((self = [super initWithWindow:window])) {
-		_view = [[window dragView] retain];
+		_view = [window dragView];
 		_tearOffStyle = tearOffStyle;
 
 		if (tearOffStyle == MMTabBarTearOffMiniwindow) {
@@ -32,13 +32,6 @@
 	if (_timer) {
 		[_timer invalidate];
 	}
-
-	if (_animation) {
-		[_animation release];
-	}
-
-	[_view release];
-	[super dealloc];
 }
 
 - (NSImage *)image {
@@ -69,7 +62,6 @@
 		//An animation already exists, get the current progress
 		progress = 1.0f - [_animation currentProgress];
 		[_animation stopAnimation];
-		[_animation release];
 	}
 
 	//begin animating
@@ -98,11 +90,11 @@
 	frame.origin.x = mousePoint.x - (frame.size.width / 2);
 	frame.origin.y = mousePoint.y - (frame.size.height / 2);
 
-	[_view setFadeValue:_showingAlternate ? 1.0f - animationValue : animationValue];
+	[_view setAlpha:_showingAlternate ? 1.0f - animationValue : animationValue];
 	[[self window] setFrame:frame display:YES];
 
 	if (![_animation isAnimating]) {
-		[_animation release], _animation = nil;
+		_animation = nil;
 		[timer invalidate];
 		_timer = nil;
 	}

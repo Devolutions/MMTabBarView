@@ -23,17 +23,9 @@ static NSImage* _static##name##Image() \
     return image; \
 }
 
-@interface MMOverflowPopUpButton (/*Private*/)
+@interface MMOverflowPopUpButton ()
 
 @property (assign) CGFloat secondImageAlpha;
-
-- (BOOL)isAnimating;
-- (void)setIsAnimating:(BOOL)newState;
-
-- (void)_startCellAnimationIfNeeded;
-- (void)_startCellAnimation;
-- (void)_stopCellAnimationIfNeeded;
-- (void)_stopCellAnimation;
 
 @end
 
@@ -43,12 +35,13 @@ StaticImage(overflowImage)
 StaticImage(overflowImagePressed)
 
 @dynamic secondImageAlpha;
+@synthesize isAnimating = _isAnimating;
 
 + (Class)cellClass {
     return [MMOverflowPopUpButtonCell class];
 }
 
-- (id)initWithFrame:(NSRect)frameRect pullsDown:(BOOL)flag {
+- (instancetype)initWithFrame:(NSRect)frameRect pullsDown:(BOOL)flag {
 	if (self = [super initWithFrame:frameRect pullsDown:YES]) {
     
         _isAnimating = NO;
@@ -67,9 +60,6 @@ StaticImage(overflowImagePressed)
 	return self;
 }
 
-- (void)dealloc {
-	[super dealloc];
-}
 
 - (void)viewWillMoveToSuperview:(NSView *)newSuperview {
     [super viewWillMoveToSuperview:newSuperview];
@@ -194,7 +184,7 @@ StaticImage(overflowImagePressed)
 	[super encodeWithCoder:aCoder];
 }
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
 	if ((self = [super initWithCoder:aDecoder])) {
 	}
 	return self;
@@ -202,14 +192,6 @@ StaticImage(overflowImagePressed)
 
 #pragma mark -
 #pragma mark Private Methods
-
-- (BOOL)isAnimating {
-    return _isAnimating;
-}
-
-- (void)setIsAnimating:(BOOL)newState {
-    _isAnimating = newState;
-}
 
 - (void)_startCellAnimationIfNeeded {
 
@@ -223,18 +205,18 @@ StaticImage(overflowImagePressed)
 }
 
 - (void)_startCellAnimation {
-    [[self animator] setIsAnimating:YES];
+    [self animator].isAnimating = YES;
 }
 
 - (void)_stopCellAnimationIfNeeded {
 
-    if (_isAnimating)
+    if (self.isAnimating)
         [self _stopCellAnimation];
 }
 
 - (void)_stopCellAnimation {
 
-    [self setIsAnimating:NO];
+    self.isAnimating = NO;
 }
 
 - (CGFloat)secondImageAlpha {

@@ -9,7 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import "MMTabStyle.h"
 
-@interface MMAquaTabStyle : NSObject <MMTabStyle> {
+@interface MMAquaTabStyle : NSObject <MMTabStyle>
+{
 	NSImage									*aquaTabBg;
 	NSImage									*aquaTabBgDown;
 	NSImage									*aquaTabBgDownGraphite;
@@ -23,10 +24,5 @@
 	NSImage									*aquaCloseDirtyButtonDown;
 	NSImage									*aquaCloseDirtyButtonOver;
 }
-
-- (void)loadImages;
-
-- (void)encodeWithCoder:(NSCoder *)aCoder;
-- (id)initWithCoder:(NSCoder *)aDecoder;
 
 @end

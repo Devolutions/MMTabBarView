@@ -14,16 +14,15 @@
 
 @synthesize isOverflowButton = _isOverflowButton;
 
-- (id)init {
+- (instancetype)init {
 	if ((self = [super init])) {
         _isOverflowButton = NO;		
 	}
 	return self;
 }
 
-- (void)dealloc {
-    [super dealloc];
-}
+#pragma mark -
+#pragma mark Properties
 
 - (MMAttachedTabBarButton *)controlView {
     return (MMAttachedTabBarButton *)[super controlView];
@@ -36,7 +35,7 @@
 #pragma mark -
 #pragma mark NSCopying
 
-- (id)copyWithZone:(NSZone *)zone {
+- (instancetype)copyWithZone:(NSZone *)zone {
     
     MMAttachedTabBarButtonCell *cellCopy = [super copyWithZone:zone];
     if (cellCopy) {
@@ -57,7 +56,7 @@
 	}
 }
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
 	if ((self = [super initWithCoder:aDecoder])) {
 		if ([aDecoder allowsKeyedCoding]) {
             
