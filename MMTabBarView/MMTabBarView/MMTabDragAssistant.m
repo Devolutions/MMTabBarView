@@ -30,6 +30,7 @@ NSString *AttachedTabBarButtonUTI = @"de.monscheuer.mmtabbarview.attachedbutton"
 @synthesize isSliding = _isSliding;
 @synthesize sourceTabBar = _sourceTabBar;
 @synthesize attachedTabBarButton = _attachedTabBarButton;
+@synthesize currentMouseLocation = _currentMouseLocation;
 
 static MMTabDragAssistant *sharedDragAssistant = nil;
 
@@ -371,14 +372,14 @@ static MMTabDragAssistant *sharedDragAssistant = nil;
 
 	if (_draggedTab) {
         if ([[_draggedTab window] respondsToSelector:@selector(orderOutForDrag:)]) {
-            [[_draggedTab window] performSelector:@selector(orderOutForDrag:)];
+            [[_draggedTab window] performSelector:@selector(orderOutForDrag:) withObject:self];
         }
 		_draggedTab = nil;
 	}
 
 	if (_draggedView) {
         if ([[_draggedView window] respondsToSelector:@selector(orderOutForDrag:)]) {
-            [[_draggedView window] performSelector:@selector(orderOutForDrag:)];
+            [[_draggedView window] performSelector:@selector(orderOutForDrag:) withObject:self];
         }
 		_draggedView = nil;
 	}
@@ -986,7 +987,7 @@ static MMTabDragAssistant *sharedDragAssistant = nil;
 		//don't fade out the old window if the delegate doesn't respond to the new tab bar method, just to be safe
 		if (isSourceWindow && sourceTabBarViewDelegate && [sourceTabBarViewDelegate respondsToSelector:@selector(tabView:newTabBarViewForDraggedTabViewItem:atPoint:)]) {
             if ([[_sourceTabBar window] respondsToSelector:@selector(orderOutForDrag:)]) {
-                [[_sourceTabBar window] performSelector:@selector(orderOutForDrag:)];
+                [[_sourceTabBar window] performSelector:@selector(orderOutForDrag:) withObject:self];
             }
 
 			if ([_sourceTabBar tearOffStyle] == MMTabBarTearOffAlphaWindow) {

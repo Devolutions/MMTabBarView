@@ -36,6 +36,7 @@ extern NSString *AttachedTabBarButtonUTI;
 	BOOL _isSliding;
 	MMTabBarView *_sourceTabBar;
 	MMAttachedTabBarButton *_attachedTabBarButton;
+    NSPoint _currentMouseLocation;
 }
 
 // Creation/destruction
