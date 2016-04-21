@@ -22,6 +22,7 @@
 {
 	MMRolloverButton *_closeButton;
 	MMProgressIndicator *_indicator;
+	NSRect _stackingFrame;
 }
 
 - (instancetype)initWithFrame:(NSRect)frame;

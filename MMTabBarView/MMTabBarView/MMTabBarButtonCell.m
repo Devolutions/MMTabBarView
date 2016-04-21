@@ -20,6 +20,8 @@
 @synthesize showObjectCount = _showObjectCount;
 @synthesize objectCountColor = _objectCountColor;
 @synthesize tabState = _tabState;
+@synthesize icon = _icon;
+@synthesize largeImage = _largeImage;
 
 + (NSColor *)defaultObjectCountColor {
     return [NSColor colorWithCalibratedWhite:0.3 alpha:0.45];
