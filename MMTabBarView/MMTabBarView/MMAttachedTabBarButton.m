@@ -203,24 +203,15 @@
     MMTabBarView *tabBarView = [self tabBarView];
 
     NSRect draggingRect = [self draggingRect];
-        
-	[tabBarView lockFocus];
-    [tabBarView display];  // forces update to ensure that we get current state
-	NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:draggingRect];
-	[tabBarView unlockFocus];
-	NSImage *image = [[NSImage alloc] initWithSize:[rep size]];
-	[image addRepresentation:rep];
-	NSImage *returnImage = [[NSImage alloc] initWithSize:[rep size]];
-	[returnImage lockFocus];
-    [image drawAtPoint:NSMakePoint(0.0, 0.0) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-	[returnImage unlockFocus];
-	if (![[self indicator] isHidden]) {
-		NSImage *pi = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"pi"]];
-		[returnImage lockFocus];
-		NSPoint indicatorPoint = NSMakePoint([self frame].size.width - MARGIN_X - kMMTabBarIndicatorWidth, MARGIN_Y);
+    
+    NSImage *returnImage = [[NSImage alloc] initWithData:[tabBarView dataWithPDFInsideRect:draggingRect]];
+    if (![[self indicator] isHidden]) {
+        NSImage *pi = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"pi"]];
+        [returnImage lockFocus];
+        NSPoint indicatorPoint = NSMakePoint([self frame].size.width - MARGIN_X - kMMTabBarIndicatorWidth, MARGIN_Y);
         [pi drawAtPoint:indicatorPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-		[returnImage unlockFocus];
-	}
+        [returnImage unlockFocus];
+    }
 	return returnImage;
 }
 
