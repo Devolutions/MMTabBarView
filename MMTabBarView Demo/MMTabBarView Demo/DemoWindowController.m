@@ -34,6 +34,7 @@
 - (IBAction)configUseOverflowMenu:(id)sender;
 - (IBAction)configAutomaticallyAnimates:(id)sender;
 - (IBAction)configAllowsScrubbing:(id)sender;
+- (IBAction)configHasBoldSelection:(id)sender;
 
 @end
 
@@ -393,6 +394,10 @@
 
 	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:[sender integerValue]]
 	 forKey:@"AllowScrubbing"];
+}
+
+- (void)configHasBoldSelection:(id)sender {
+    [tabBar setHasBoldSelection:[sender state]];
 }
 
 #pragma mark -

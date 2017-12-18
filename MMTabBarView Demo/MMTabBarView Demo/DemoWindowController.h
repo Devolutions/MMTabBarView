@@ -42,6 +42,7 @@
 	IBOutlet NSTextField			*textField_minWidth;
 	IBOutlet NSTextField			*textField_maxWidth;
 	IBOutlet NSTextField			*textField_optimumWidth;
+    IBOutlet NSButton               *button_hasBoldSelection;
 }
 
 - (void)addDefaultTabs;

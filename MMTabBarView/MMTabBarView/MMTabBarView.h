@@ -119,6 +119,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 	
 	// configuration
 	id <MMTabStyle>                 _style;
+    BOOL                            _hasBoldSelection;
 	BOOL                            _onlyShowCloseOnHover;
 	BOOL                            _canCloseOnlyTab;
 	BOOL                            _disableTabClose;
@@ -536,6 +537,11 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
  *  @param name Name of registered tab style
  */
 - (void)setStyleNamed:(NSString *)name;
+
+/**
+ *  YES: The selected tab draws a bold title
+ */
+@property (assign) BOOL hasBoldSelection;
 
 /**
  *  Reciever's layout orientation

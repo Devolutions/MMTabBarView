@@ -217,13 +217,17 @@
 #pragma mark Cell Values
 
 - (NSAttributedString *)attributedStringValue {
+    return [self attributedStringValueOfControlView: nil];
+}
+
+- (NSAttributedString *)attributedStringValueOfControlView:(NSView *)controlView {
     MMTabBarView *tabBarView = [self tabBarView];
     id <MMTabStyle> tabStyle = [tabBarView style];
-
+    
     if ([tabStyle respondsToSelector:@selector(attributedStringValueForTabCell:)])
         return [tabStyle attributedStringValueForTabCell:self];
     else
-        return [self _attributedStringValue];
+        return [self _attributedStringValueOfControlView: controlView];
 }
 
 - (NSAttributedString *)attributedObjectCountStringValue {
@@ -537,15 +541,26 @@
 
 #pragma mark > String Values
 
-- (NSAttributedString *)_attributedStringValue {
+- (NSAttributedString *)_attributedStringValueOfControlView:(NSView *)controlView {
 
 	NSMutableAttributedString *attrStr;
 	NSString *contents = [self title];
 	attrStr = [[NSMutableAttributedString alloc] initWithString:contents];
 	NSRange range = NSMakeRange(0, [contents length]);
-
-	[attrStr addAttribute:NSFontAttributeName value:[NSFont systemFontOfSize:11.0] range:range];
-	[attrStr addAttribute:NSForegroundColorAttributeName value:[NSColor controlTextColor] range:range];
+    
+    NSFont *font = [NSFont systemFontOfSize:11.0];
+    if (controlView && [[self tabBarView] hasBoldSelection])
+    {
+        MMAttachedTabBarButton *button = (MMAttachedTabBarButton *)controlView;
+        
+        if ([button state] == NSOnState)
+        {
+            font = [NSFont boldSystemFontOfSize:11.0];
+        }
+    }
+    
+    [attrStr addAttribute:NSFontAttributeName value:font range:range];
+    [attrStr addAttribute:NSForegroundColorAttributeName value:[NSColor controlTextColor] range:range];
     
 	// Paragraph Style for Truncating Long Text
 	static NSMutableParagraphStyle *truncatingTailParagraphStyle = nil;
@@ -1046,7 +1061,7 @@
     [shadow set];
 
     // draw title
-    [[self attributedStringValue] drawInRect:rect];
+    [[self attributedStringValueOfControlView:controlView] drawInRect:rect];
 
     [NSGraphicsContext restoreGraphicsState];
         

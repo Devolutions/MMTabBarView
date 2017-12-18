@@ -862,6 +862,16 @@ static NSMutableDictionary *registeredStyleClasses = nil;
 	}
 }
 
+- (BOOL)hasBoldSelection {
+    return _hasBoldSelection;
+}
+
+- (void)setHasBoldSelection:(BOOL)value {
+    _hasBoldSelection = value;
+    
+    [self setNeedsUpdate:YES];
+}
+
 - (BOOL)onlyShowCloseOnHover {
 	return _onlyShowCloseOnHover;
 }
@@ -2029,6 +2039,7 @@ static NSMutableDictionary *registeredStyleClasses = nil;
 		[aCoder encodeObject:_addTabButton forKey:@"MMaddTabButton"];
 		[aCoder encodeObject:_style forKey:@"MMstyle"];
 		[aCoder encodeInteger:_orientation forKey:@"MMorientation"];
+        [aCoder encodeBool:_hasBoldSelection forKey:@"MMhasBoldSelection"];
 		[aCoder encodeBool:_onlyShowCloseOnHover forKey:@"MMonlyShowCloseOnHover"];        
 		[aCoder encodeBool:_canCloseOnlyTab forKey:@"MMcanCloseOnlyTab"];
 		[aCoder encodeBool:_disableTabClose forKey:@"MMdisableTabClose"];
@@ -2068,6 +2079,7 @@ static NSMutableDictionary *registeredStyleClasses = nil;
 			_addTabButton = [aDecoder decodeObjectForKey:@"MMaddTabButton"];
 			_style = [aDecoder decodeObjectForKey:@"MMstyle"];
 			_orientation = (MMTabBarOrientation)[aDecoder decodeIntegerForKey:@"MMorientation"];
+            _hasBoldSelection = [aDecoder decodeBoolForKey:@"MMhasBoldSelection"];
 			_onlyShowCloseOnHover = [aDecoder decodeBoolForKey:@"MMonlyShowCloseOnHover"];            
 			_canCloseOnlyTab = [aDecoder decodeBoolForKey:@"MMcanCloseOnlyTab"];
 			_disableTabClose = [aDecoder decodeBoolForKey:@"MMdisableTabClose"];
@@ -2218,6 +2230,7 @@ static NSMutableDictionary *registeredStyleClasses = nil;
 
         // default config
 	_orientation = MMTabBarHorizontalOrientation;
+    _hasBoldSelection = NO;
     _onlyShowCloseOnHover = NO;
 	_canCloseOnlyTab = NO;
 	_disableTabClose = NO;
