@@ -217,17 +217,25 @@
 #pragma mark Cell Values
 
 - (NSAttributedString *)attributedStringValue {
-    return [self attributedStringValueOfControlView: nil];
+    return [self attributedStringValueByForcingBold:NO];
+}
+
+- (NSAttributedString *)attributedStringValueByForcingBold:(BOOL)forceBold {
+    return [self attributedStringValueOfControlView: nil byForcingBold:forceBold];
 }
 
 - (NSAttributedString *)attributedStringValueOfControlView:(NSView *)controlView {
+    return [self attributedStringValueOfControlView:controlView byForcingBold:NO];
+}
+
+- (NSAttributedString *)attributedStringValueOfControlView:(NSView *)controlView byForcingBold:(BOOL)forceBold {
     MMTabBarView *tabBarView = [self tabBarView];
     id <MMTabStyle> tabStyle = [tabBarView style];
     
     if ([tabStyle respondsToSelector:@selector(attributedStringValueForTabCell:)])
         return [tabStyle attributedStringValueForTabCell:self];
     else
-        return [self _attributedStringValueOfControlView: controlView];
+        return [self _attributedStringValueOfControlView: controlView byForcingBold:forceBold];
 }
 
 - (NSAttributedString *)attributedObjectCountStringValue {
@@ -541,7 +549,7 @@
 
 #pragma mark > String Values
 
-- (NSAttributedString *)_attributedStringValueOfControlView:(NSView *)controlView {
+- (NSAttributedString *)_attributedStringValueOfControlView:(NSView *)controlView byForcingBold:(BOOL)forceBold {
 
 	NSMutableAttributedString *attrStr;
 	NSString *contents = [self title];
@@ -549,14 +557,19 @@
 	NSRange range = NSMakeRange(0, [contents length]);
     
     NSFont *font = [NSFont systemFontOfSize:11.0];
-    if (controlView && [[self tabBarView] hasBoldSelection])
+    
+    BOOL selected = NO;
+    
+    if (!forceBold && controlView && [[self tabBarView] hasBoldSelection])
     {
         MMAttachedTabBarButton *button = (MMAttachedTabBarButton *)controlView;
         
-        if ([button state] == NSOnState)
-        {
-            font = [NSFont boldSystemFontOfSize:11.0];
-        }
+        selected = [button state] == NSOnState;
+    }
+    
+    if (selected || forceBold)
+    {
+        font = [NSFont boldSystemFontOfSize:11.0];
     }
     
     [attrStr addAttribute:NSFontAttributeName value:font range:range];
@@ -952,9 +965,9 @@
     if ([self icon]) {
         resultWidth += kMMTabBarIconWidth + kMMTabBarCellPadding;
     }
-
+    
     // the label
-    resultWidth += [[self attributedStringValue] size].width;
+    resultWidth += [[self attributedStringValueByForcingBold:[[self tabBarView] hasBoldSelection]] size].width;
 
     // object counter?
     if ([self showObjectCount]) {
