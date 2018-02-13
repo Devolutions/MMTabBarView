@@ -374,6 +374,8 @@ static MMTabDragAssistant *sharedDragAssistant = nil;
         if ([[_draggedTab window] respondsToSelector:@selector(orderOutForDrag:)]) {
             [[_draggedTab window] performSelector:@selector(orderOutForDrag:) withObject:self];
         }
+        
+        [[_draggedTab window] close];
 		_draggedTab = nil;
 	}
 
@@ -381,6 +383,8 @@ static MMTabDragAssistant *sharedDragAssistant = nil;
         if ([[_draggedView window] respondsToSelector:@selector(orderOutForDrag:)]) {
             [[_draggedView window] performSelector:@selector(orderOutForDrag:) withObject:self];
         }
+        
+        [[_draggedView window] close];
 		_draggedView = nil;
 	}
 
