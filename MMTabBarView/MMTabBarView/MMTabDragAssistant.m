@@ -608,6 +608,10 @@ static MMTabDragAssistant *sharedDragAssistant = nil;
 	return viewImage;
 }
 
+- (NSImage *)_miniviewImageOfView:(NSView *) view {
+    return [[NSImage alloc] initWithData:[view dataWithPDFInsideRect:view.bounds]];
+}
+
 - (NSImage *)_miniwindowImageOfWindow:(NSWindow *)window {
 	NSRect rect = [window frame];
 	NSImage *image = [[NSImage alloc] initWithSize:rect.size];
@@ -971,9 +975,9 @@ static MMTabDragAssistant *sharedDragAssistant = nil;
 			NSSize imageSize;
 			NSUInteger mask;             //we don't need this but we can't pass nil in for the style mask, as some delegate implementations will crash
 
-			if (!(image = [self _miniwindowImageOfWindow:[_sourceTabBar window]])) {
-				image = [self _imageForViewOfAttachedButton:_attachedTabBarButton forTabBarView:_sourceTabBar styleMask:&mask];
-			}
+            if (!(image = [self _miniviewImageOfView:[_sourceTabBar tabView]])) {
+                image = [self _imageForViewOfAttachedButton:_attachedTabBarButton forTabBarView:_sourceTabBar styleMask:&mask];
+            }
 
 			imageSize = [image size];
 
