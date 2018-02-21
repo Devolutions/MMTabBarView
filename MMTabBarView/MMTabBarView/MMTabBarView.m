@@ -33,6 +33,8 @@
 
 @interface MMTabBarView ()
 
+@property (assign) BOOL canUnbindProperties;
+
 // resizing
 @property (assign) BOOL isResizing;
 @property (readonly) NSCursor *resizingMouseCursor;
@@ -1783,10 +1785,19 @@ static NSMutableDictionary *registeredStyleClasses = nil;
 
         // watch for changes in the identifier
 	[item addObserver:self forKeyPath:@"identifier" options:NSKeyValueObservingOptionOld context:nil];
+    
+    [self setCanUnbindProperties:TRUE];
 }
 
 - (void)unbindPropertiesOfAttachedButton:(MMAttachedTabBarButton *)aButton {
-
+    
+    if (!self.canUnbindProperties)
+    {
+        return;
+    }
+    
+    [self setCanUnbindProperties:FALSE];
+    
     NSTabViewItem *item = [aButton tabViewItem];
     if (!item)
         return;
