@@ -609,7 +609,23 @@ static MMTabDragAssistant *sharedDragAssistant = nil;
 }
 
 - (NSImage *)_miniviewImageOfView:(NSView *) view {
-    return [[NSImage alloc] initWithData:[view dataWithPDFInsideRect:view.bounds]];
+    // Taken from https://stackoverflow.com/a/11955836/5411392
+    // And the fix from https://stackoverflow.com/a/17907648/5411392
+    NSRect originRect = [view convertRect:[view bounds] toView:[[view window] contentView]];
+    
+    NSArray *screens = [NSScreen screens];
+    NSScreen *primaryScreen = [screens objectAtIndex:0];
+    
+    NSRect rect = originRect;
+    rect.origin.y = 0;
+    rect.origin.x += [view window].frame.origin.x;
+    rect.origin.y = primaryScreen.frame.size.height - [view window].frame.origin.y - originRect.origin.y - originRect.size.height;
+    
+    CGImageRef cgimg = CGWindowListCreateImage(NSRectToCGRect(rect),
+                                               kCGWindowListOptionIncludingWindow,
+                                               (CGWindowID)[[view window] windowNumber],
+                                               kCGWindowImageDefault);
+    return [[NSImage alloc] initWithCGImage:cgimg size:[view bounds].size];
 }
 
 - (NSImage *)_miniwindowImageOfWindow:(NSWindow *)window {
@@ -975,7 +991,7 @@ static MMTabDragAssistant *sharedDragAssistant = nil;
 			NSSize imageSize;
 			NSUInteger mask;             //we don't need this but we can't pass nil in for the style mask, as some delegate implementations will crash
 
-            if (!(image = [self _miniviewImageOfView:[_sourceTabBar tabView]])) {
+            if (!(image = [self _miniviewImageOfView:[_sourceTabBar tabView]]) || (image.size.height == 0 || image.size.width == 0)) {
                 image = [self _imageForViewOfAttachedButton:_attachedTabBarButton forTabBarView:_sourceTabBar styleMask:&mask];
             }
 
