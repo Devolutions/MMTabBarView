@@ -68,8 +68,10 @@
 
 -(void)viewWillDraw {
 
-    NSView *superview = [self superview];    
-    [superview setNeedsDisplayInRect:[superview bounds]];
+    // This was *drastically* slowing down the app in macOS Mojave Beta.
+    // I'm not sure why and it doesn't seem to have a particular effect in RDM so I've decide to comment it for now. - xfortin
+//    NSView *superview = [self superview];
+//    [superview setNeedsDisplayInRect:[superview bounds]];
 
     [super viewWillDraw];
 }
