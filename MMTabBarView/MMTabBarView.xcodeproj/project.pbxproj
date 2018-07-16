@@ -1076,6 +1076,7 @@
 				INFOPLIST_FILE = "MMTabBarView/MMTabBarView-Info.plist";
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -1096,6 +1097,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				INFOPLIST_FILE = "MMTabBarView/MMTabBarView-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = x86_64;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
