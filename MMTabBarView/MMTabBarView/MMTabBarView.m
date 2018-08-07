@@ -2173,6 +2173,11 @@ static NSMutableDictionary *registeredStyleClasses = nil;
 }
 
 - (void)_didClickTabButton:(id)sender {
+    if (sender == nil || [sender tabViewItem] == nil)
+    {
+        return;
+    }
+    
 	[_tabView selectTabViewItem:[sender tabViewItem]];
 }
 
