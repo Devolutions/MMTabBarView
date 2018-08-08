@@ -36,8 +36,6 @@
     NSMutableArray *_boundItems;
 }
 
-@property (assign) BOOL canUnbindProperties;
-
 // resizing
 @property (assign) BOOL isResizing;
 @property (readonly) NSCursor *resizingMouseCursor;
