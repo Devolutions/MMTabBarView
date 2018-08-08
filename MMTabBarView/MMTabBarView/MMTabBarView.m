@@ -32,6 +32,9 @@
 #define DIVIDER_WIDTH 3
 
 @interface MMTabBarView ()
+{
+    NSMutableArray *_boundItems;
+}
 
 @property (assign) BOOL canUnbindProperties;
 
@@ -1786,21 +1789,20 @@ static NSMutableDictionary *registeredStyleClasses = nil;
         // watch for changes in the identifier
 	[item addObserver:self forKeyPath:@"identifier" options:NSKeyValueObservingOptionOld context:nil];
     
-    [self setCanUnbindProperties:TRUE];
+    [_boundItems addObject:item];
 }
 
 - (void)unbindPropertiesOfAttachedButton:(MMAttachedTabBarButton *)aButton {
+    NSTabViewItem *item = [aButton tabViewItem];
+    if (!item)
+        return;
     
-    if (!self.canUnbindProperties)
+    if (![_boundItems containsObject:item])
     {
         return;
     }
     
-    [self setCanUnbindProperties:FALSE];
-    
-    NSTabViewItem *item = [aButton tabViewItem];
-    if (!item)
-        return;
+    [_boundItems removeObject:item];
 
         // watch for changes in the identifier
     [item removeObserver:self forKeyPath:@"identifier"];
@@ -2270,6 +2272,8 @@ static NSMutableDictionary *registeredStyleClasses = nil;
     _destinationIndexForDraggedItem = NSNotFound;
     _needsUpdate = NO;
     _resizeTabsToFitTotalWidth = NO;
+    
+    _boundItems = [[NSMutableArray alloc] init];
 
     [self _updateOverflowPopUpButton];
 
