@@ -712,7 +712,7 @@ static NSMutableDictionary *registeredStyleClasses = nil;
     
     if (index+1 < [buttons count])
         nextButton = [buttons objectAtIndex:index+1];
-    if (index > 0)
+    if ((index > 0) && (index-1 < [buttons count]))
         prevButton = [buttons objectAtIndex:index-1];
 
     [self updateTabStateMaskOfAttachedButton:aButton atIndex:index withPrevious:prevButton next:nextButton];
