@@ -2178,6 +2178,13 @@ static NSMutableDictionary *registeredStyleClasses = nil;
         return;
     }
     
+    NSArray *tabViewItems = [_tabView tabViewItems];
+    
+    if (tabViewItems == nil || ![tabViewItems containsObject:[sender tabViewItem]])
+    {
+        return;
+    }
+    
 	[_tabView selectTabViewItem:[sender tabViewItem]];
 }
 
