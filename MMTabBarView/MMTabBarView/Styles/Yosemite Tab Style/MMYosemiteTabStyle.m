@@ -14,6 +14,9 @@
 #import "NSBezierPath+MMTabBarViewExtensions.h"
 
 @implementation MMYosemiteTabStyle
+{
+    NSBundle *_bundle;
+}
 
 @synthesize leftMarginForTabBarView = _leftMarginForTabBarView;
 
@@ -40,6 +43,7 @@ StaticImage(YosemiteTabNewPressed)
 - (id) init {
 	if ((self = [super init])) {
 		_leftMarginForTabBarView = -1.0f;
+        _bundle = [NSBundle bundleForClass:self.class];
 	}
     
 	return self;
@@ -158,15 +162,32 @@ StaticImage(YosemiteTabNewPressed)
 	if (![tabBarView isWindowActive]) {
 		[[NSColor windowBackgroundColor] set];
 	} else {
-        NSColor *startColor = [NSColor colorWithDeviceWhite:0.8 alpha:1.000];
+        NSColor *startColor;
+        if (@available(macOS 10_13, *))
+        {
+            startColor = [NSColor colorNamed:@"TabBarViewColor" bundle:self->_bundle];
+        }
+        else
+        {
+            startColor = [NSColor colorWithDeviceWhite:0.8 alpha:1.000];
+        }
+        
         NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:startColor endingColor:startColor];
         [gradient drawInRect:gradientRect angle:90.0];
     }
 
-    [[NSColor colorWithCalibratedRed:0.642 green:0.633 blue:0.642 alpha:1.000] set];
+    if (@available(macOS 10.13, *))
+    {
+        [[NSColor colorNamed:@"TabBarViewBorderColor" bundle:self->_bundle] set];
+    }
+    else
+    {
+        [[NSColor colorWithCalibratedRed:0.642 green:0.633 blue:0.642 alpha:1.000] set];
+    }
+
     [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMinY(rect) + 0.5)
                               toPoint:NSMakePoint(NSMaxX(rect), NSMinY(rect) + 0.5)];
-    
+
     [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect) - 0.5)
                               toPoint:NSMakePoint(NSMaxX(rect), NSMaxY(rect) - 0.5)];
 }
@@ -241,29 +262,83 @@ StaticImage(YosemiteTabNewPressed)
 
 - (void)_drawCardBezelInRect:(NSRect)aRect withCapMask:(MMBezierShapeCapMask)capMask usingStatesOfAttachedButton:(MMAttachedTabBarButton *)button ofTabBarView:(MMTabBarView *)tabBarView {
 
-    NSColor *lineColor = [NSColor colorWithCalibratedWhite:0.576 alpha:1.0];
+    NSColor *lineColor;
+    if (@available(macOS 10.13, *))
+    {
+        lineColor = [NSColor colorNamed:@"TabBarSeperatorColor" bundle:self->_bundle];
+    }
+    else
+    {
+        lineColor = [NSColor colorWithCalibratedWhite:0.576 alpha:1.0];
+    }
+    
     CGFloat radius = 0.0f;
         
     NSBezierPath *fillPath = [NSBezierPath bezierPathWithCardInRect:aRect radius:radius capMask:capMask|MMBezierShapeFillPath];
 
     if ([tabBarView isWindowActive]) {
         if ([button state] == NSOnState) {
-            NSColor *startColor = [NSColor colorWithDeviceWhite:0.875 alpha:1.000];
-            NSColor *endColor = [NSColor colorWithDeviceWhite:0.902 alpha:1.000];
+            NSColor *startColor;
+            if (@available(macOS 10_13, *))
+            {
+                startColor = [NSColor colorNamed:@"SelectedTabBarCardStartColor" bundle:self->_bundle];
+            }
+            else
+            {
+                startColor = [NSColor colorWithDeviceWhite:0.875 alpha:1.000];
+            }
+            
+            NSColor *endColor;
+            if (@available(macOS 10_13, *))
+            {
+                endColor = [NSColor colorNamed:@"SelectedTabBarCardEndColor" bundle:self->_bundle];
+            }
+            else
+            {
+                endColor = [NSColor colorWithDeviceWhite:0.902 alpha:1.000];
+            }
+            
             NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:startColor endingColor:endColor];
             [[NSGraphicsContext currentContext] setShouldAntialias:NO];
             [gradient drawInBezierPath:fillPath angle:90.0];
             [[NSGraphicsContext currentContext] setShouldAntialias:YES];
         } else {
-            NSColor *startColor = [NSColor colorWithDeviceWhite:0.8 alpha:1.000];
+            NSColor *startColor;
+            if (@available(macOS 10.13, *))
+            {
+                startColor = [NSColor colorNamed:@"InactiveTabBarCardColor" bundle:self->_bundle];
+            }
+            else
+            {
+                startColor = [NSColor colorWithDeviceWhite:0.8 alpha:1.000];
+            }
+            
             NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:startColor endingColor:startColor];
             [gradient drawInBezierPath:fillPath angle:80.0];
         }
     } else {
         
         if ([button state] == NSOnState) {
-            NSColor *startColor = [NSColor colorWithDeviceWhite:0.875 alpha:1.000];
-            NSColor *endColor = [NSColor colorWithDeviceWhite:0.902 alpha:1.000];
+            NSColor *startColor;
+            if (@available(macOS 10_13, *))
+            {
+                startColor = [NSColor colorNamed:@"SelectedTabBarCardStartColor" bundle:self->_bundle];
+            }
+            else
+            {
+                startColor = [NSColor colorWithDeviceWhite:0.875 alpha:1.000];
+            }
+            
+            NSColor *endColor;
+            if (@available(macOS 10_13, *))
+            {
+                endColor = [NSColor colorNamed:@"SelectedTabBarCardEndColor" bundle:self->_bundle];
+            }
+            else
+            {
+                endColor = [NSColor colorWithDeviceWhite:0.902 alpha:1.000];
+            }
+            
             NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:startColor endingColor:endColor];
             [[NSGraphicsContext currentContext] setShouldAntialias:NO];
             [gradient drawInBezierPath:fillPath angle:90.0];
@@ -293,7 +368,7 @@ StaticImage(YosemiteTabNewPressed)
         // fill
     if ([button state] == NSOnState) {
         [[NSColor colorWithCalibratedWhite:0.0 alpha:0.2] set];
-        NSRectFillUsingOperation(aRect, NSCompositeSourceAtop);            
+        NSRectFillUsingOperation(aRect, NSCompositeSourceAtop);
     } else if ([button mouseHovered]) {
         [[NSColor colorWithCalibratedWhite:0.0 alpha:0.1] set];
         NSRectFillUsingOperation(aRect, NSCompositeSourceAtop);
