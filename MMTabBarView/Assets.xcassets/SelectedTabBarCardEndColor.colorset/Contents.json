@@ -23,10 +23,12 @@
         }
       ],
       "color" : {
-        "color-space" : "gray-gamma-22",
+        "color-space" : "srgb",
         "components" : {
-          "white" : "0.300",
-          "alpha" : "1.000"
+          "red" : "46",
+          "alpha" : "1.000",
+          "blue" : "48",
+          "green" : "47"
         }
       }
     }

@@ -7,6 +7,7 @@
 //  Copyright 2014 Ajin Man Tuladhar. All rights reserved.
 //
 
+#import <AppKit/AppKit.h>
 #import "MMYosemiteTabStyle.h"
 #import "MMAttachedTabBarButton.h"
 #import "MMTabBarView.h"
@@ -23,6 +24,9 @@
 StaticImage(YosemiteTabClose_Front)
 StaticImage(YosemiteTabClose_Front_Pressed)
 StaticImage(YosemiteTabClose_Front_Rollover)
+StaticImage(Dark_YosemiteTabClose_Front)
+StaticImage(Dark_YosemiteTabClose_Front_Pressed)
+StaticImage(Dark_YosemiteTabClose_Front_Rollover)
 StaticImageWithFilename(YosemiteTabCloseDirty_Front, AquaTabCloseDirty_Front)
 StaticImageWithFilename(YosemiteTabCloseDirty_Front_Pressed, AquaTabCloseDirty_Front_Pressed)
 StaticImageWithFilename(YosemiteTabCloseDirty_Front_Rollover, AquaTabCloseDirty_Front_Rollover)
@@ -128,13 +132,35 @@ StaticImage(YosemiteTabNewPressed)
 
 - (NSImage *)closeButtonImageOfType:(MMCloseButtonImageType)type forTabCell:(MMTabBarButtonCell *)cell
 {
+    BOOL isDark = [MMYosemiteTabStyle isDarkAppearance:[[cell controlView] effectiveAppearance]];
     switch (type) {
         case MMCloseButtonImageTypeStandard:
-            return _staticYosemiteTabClose_FrontImage();
+            if (isDark)
+            {
+                return _staticDark_YosemiteTabClose_FrontImage();
+            }
+            else
+            {
+                return _staticYosemiteTabClose_FrontImage();
+            }
         case MMCloseButtonImageTypeRollover:
-            return _staticYosemiteTabClose_Front_RolloverImage();
+            if (isDark)
+            {
+                return _staticDark_YosemiteTabClose_Front_RolloverImage();
+            }
+            else
+            {
+                return _staticYosemiteTabClose_Front_RolloverImage();
+            }
         case MMCloseButtonImageTypePressed:
-            return _staticYosemiteTabClose_Front_PressedImage();
+            if (isDark)
+            {
+                return _staticDark_YosemiteTabClose_Front_PressedImage();
+            }
+            else
+            {
+                return _staticYosemiteTabClose_Front_PressedImage();
+            }
             
         case MMCloseButtonImageTypeDirty:
             return _staticYosemiteTabCloseDirty_FrontImage();
@@ -306,7 +332,7 @@ StaticImage(YosemiteTabNewPressed)
             NSColor *startColor;
             if (@available(macOS 10.13, *))
             {
-                startColor = [NSColor colorNamed:@"InactiveTabBarCardColor" bundle:self->_bundle];
+                startColor = [NSColor colorNamed:@"TabBarCardColor" bundle:self->_bundle];
             }
             else
             {
@@ -347,6 +373,12 @@ StaticImage(YosemiteTabNewPressed)
     }        
     
     NSBezierPath *bezier = [NSBezierPath bezierPath];
+    if ([MMYosemiteTabStyle isDarkAppearance:[tabBarView effectiveAppearance]])
+    {
+        // For some reason it looks a lot better in Dark mode with a bit more width
+        [bezier setLineWidth:2.0f];
+    }
+    
     [lineColor set];
     
     BOOL shouldDisplayLeftDivider = [button shouldDisplayLeftDivider];
@@ -372,6 +404,22 @@ StaticImage(YosemiteTabNewPressed)
     } else if ([button mouseHovered]) {
         [[NSColor colorWithCalibratedWhite:0.0 alpha:0.1] set];
         NSRectFillUsingOperation(aRect, NSCompositeSourceAtop);
+    }
+}
+
++(BOOL)isDarkAppearance:(NSAppearance*) appearance
+{
+    if (@available(macOS 10.14, *))
+    {
+        NSAppearanceName basicAppearance = [appearance bestMatchFromAppearancesWithNames:@[
+                                                                                           NSAppearanceNameAqua,
+                                                                                           NSAppearanceNameDarkAqua
+                                                                                           ]];
+        return [basicAppearance isEqualToString:NSAppearanceNameDarkAqua];
+    }
+    else
+    {
+        return NO;
     }
 }
 
