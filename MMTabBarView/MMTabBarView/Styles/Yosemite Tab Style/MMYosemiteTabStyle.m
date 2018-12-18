@@ -201,15 +201,8 @@ StaticImage(YosemiteTabNewPressed)
         NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:startColor endingColor:startColor];
         [gradient drawInRect:gradientRect angle:90.0];
     }
-
-    if (@available(macOS 10.13, *))
-    {
-        [[NSColor colorNamed:@"TabBarViewBorderColor" bundle:self->_bundle] set];
-    }
-    else
-    {
-        [[NSColor colorWithCalibratedRed:0.642 green:0.633 blue:0.642 alpha:1.000] set];
-    }
+    
+    [[MMYosemiteTabStyle getBorderColorForWindow:[tabBarView window] withBundle:self->_bundle] set];
 
     [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMinY(rect) + 0.5)
                               toPoint:NSMakePoint(NSMaxX(rect), NSMinY(rect) + 0.5)];
@@ -286,17 +279,14 @@ StaticImage(YosemiteTabNewPressed)
 #pragma mark -
 #pragma mark Private Methods
 
+- (void)drawBezelOfButton:(MMAttachedTabBarButton *)button atIndex:(NSUInteger)index inButtons:(NSArray *)buttons indexOfSelectedButton:(NSUInteger)selIndex tabBarView:(MMTabBarView *)tabBarView inRect:(NSRect)rect
+{
+    [button setNeedsDisplay:YES];
+}
+
 - (void)_drawCardBezelInRect:(NSRect)aRect withCapMask:(MMBezierShapeCapMask)capMask usingStatesOfAttachedButton:(MMAttachedTabBarButton *)button ofTabBarView:(MMTabBarView *)tabBarView {
 
-    NSColor *lineColor;
-    if (@available(macOS 10.13, *))
-    {
-        lineColor = [NSColor colorNamed:@"TabBarSeperatorColor" bundle:self->_bundle];
-    }
-    else
-    {
-        lineColor = [NSColor colorWithCalibratedWhite:0.576 alpha:1.0];
-    }
+    NSColor *lineColor = [MMYosemiteTabStyle getBorderColorForWindow:[tabBarView window] withBundle:self->_bundle];
     
     CGFloat radius = 0.0f;
         
@@ -348,7 +338,7 @@ StaticImage(YosemiteTabNewPressed)
             NSColor *startColor;
             if (@available(macOS 10_13, *))
             {
-                startColor = [NSColor colorNamed:@"SelectedTabBarCardStartColor" bundle:self->_bundle];
+                startColor = [NSColor colorNamed:@"SelectedTabBarCardStartUnfocusedColor" bundle:self->_bundle];
             }
             else
             {
@@ -358,7 +348,7 @@ StaticImage(YosemiteTabNewPressed)
             NSColor *endColor;
             if (@available(macOS 10_13, *))
             {
-                endColor = [NSColor colorNamed:@"SelectedTabBarCardEndColor" bundle:self->_bundle];
+                endColor = [NSColor colorNamed:@"SelectedTabBarCardEndUnfocusedColor" bundle:self->_bundle];
             }
             else
             {
@@ -379,18 +369,16 @@ StaticImage(YosemiteTabNewPressed)
         [bezier setLineWidth:2.0f];
     }
     
-    [lineColor set];
+    [lineColor setFill];
     
     BOOL shouldDisplayLeftDivider = [button shouldDisplayLeftDivider];
     if (shouldDisplayLeftDivider) {
-        //draw the tab divider
-        [bezier moveToPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))];
-        [bezier lineToPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))];
+        NSBezierPath *leftDivider = [NSBezierPath bezierPathWithRect:NSMakeRect(aRect.origin.x, aRect.origin.y, 1, aRect.size.height)];
+        [leftDivider fill];
     }
     
-    [bezier moveToPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))];
-    [bezier lineToPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))];
-    [bezier stroke];
+    NSBezierPath *leftDivider = [NSBezierPath bezierPathWithRect:NSMakeRect(aRect.origin.x + aRect.size.width - 1, aRect.origin.y, 1, aRect.size.height)];
+    [leftDivider fill];
 }
 
 - (void)_drawBoxBezelInRect:(NSRect)aRect withCapMask:(MMBezierShapeCapMask)capMask usingStatesOfAttachedButton:(MMAttachedTabBarButton *)button ofTabBarView:(MMTabBarView *)tabBarView {
@@ -404,6 +392,32 @@ StaticImage(YosemiteTabNewPressed)
     } else if ([button mouseHovered]) {
         [[NSColor colorWithCalibratedWhite:0.0 alpha:0.1] set];
         NSRectFillUsingOperation(aRect, NSCompositeSourceAtop);
+    }
+}
+
++(NSColor *)getBorderColorForWindow:(NSWindow *)window withBundle:(NSBundle *)bundle
+{
+    if (@available(macOS 10.13, *))
+    {
+        if (window && [window isKeyWindow])
+        {
+            return [NSColor colorNamed:@"BorderColor" bundle:bundle];
+        }
+        else
+        {
+            return [NSColor colorNamed:@"BorderUnfocusedColor" bundle:bundle];
+        }
+    }
+    else
+    {
+        if (window && [window isKeyWindow])
+        {
+            return [NSColor colorWithCalibratedRed:0.698 green:0.698 blue:0.698 alpha:1.000];
+        }
+        else
+        {
+            return [NSColor colorWithCalibratedRed:0.827 green:0.827 blue:0.827 alpha:1.000];
+        }
     }
 }
 
