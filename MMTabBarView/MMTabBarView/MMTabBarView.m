@@ -381,10 +381,17 @@ static NSMutableDictionary *registeredStyleClasses = nil;
 
 - (void)moveTabViewItem:(NSTabViewItem *)anItem toIndex:(NSUInteger)index {
 
+    NSUInteger correctedIndex = index;
+    NSUInteger numberOfTabs = [[_tabView tabViewItems] count];
+    if (correctedIndex > numberOfTabs)
+    {
+        correctedIndex = numberOfTabs;
+    }
+    
     [self setIsReorderingTabViewItems:YES];
     
     [_tabView removeTabViewItem:anItem];
-    [_tabView insertTabViewItem:anItem atIndex:index];    
+    [_tabView insertTabViewItem:anItem atIndex:correctedIndex];
     
         // assure that item gets re-selected
     [_tabView selectTabViewItem:anItem];
@@ -392,7 +399,7 @@ static NSMutableDictionary *registeredStyleClasses = nil;
     [self setIsReorderingTabViewItems:NO];
     
     if (_delegate && [_delegate respondsToSelector:@selector(tabView:didMoveTabViewItem:toIndex:)])
-        [_delegate tabView:_tabView didMoveTabViewItem:anItem toIndex:index];
+        [_delegate tabView:_tabView didMoveTabViewItem:anItem toIndex:correctedIndex];
 }
 
 - (void)removeTabViewItem:(NSTabViewItem *)anItem {
