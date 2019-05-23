@@ -167,9 +167,10 @@ static NSMutableDictionary *registeredStyleClasses = nil;
 }
 
 -(void)viewDidEndLiveResize {
-    for (MMAttachedTabBarButton *aButton in [self attachedButtons]) {
-		[[aButton indicator] startAnimation:self];
-	}
+    // This caused a hang in macOS Mojave when going fullscreen. See https://github.com/MiMo42/MMTabBarView/issues/63
+//    for (MMAttachedTabBarButton *aButton in [self attachedButtons]) {
+//        [[aButton indicator] startAnimation:self];
+//    }
 
 	[self _checkWindowFrame];
 	[self update:NO];
