@@ -1163,6 +1163,16 @@ static NSMutableDictionary *registeredStyleClasses = nil;
     
     _isHidden = hide;
     
+    if (_isHidden) {
+        if ([_delegate respondsToSelector:@selector(tabView:tabBarViewWillHide:)]) {
+            [_delegate tabView:[self tabView] tabBarViewWillHide:self];
+        }
+    } else {
+        if ([_delegate respondsToSelector:@selector(tabView:tabBarViewWillUnhide:)]) {
+            [_delegate tabView:[self tabView] tabBarViewWillUnhide:self];
+        }
+    }
+    
     CGFloat partnerOriginalSize, partnerOriginalOrigin, myOriginalSize, myOriginalOrigin, partnerTargetSize, partnerTargetOrigin;
     
     // target values for partner

@@ -725,6 +725,8 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 - (void)tabView:(NSTabView *)aTabView didMoveTabViewItem:(NSTabViewItem *)tabViewItem toIndex:(NSUInteger)index;
 
     // Informal tab bar visibility methods
+- (void)tabView:(NSTabView *)aTabView tabBarViewWillHide:(MMTabBarView *)tabBarView;
+- (void)tabView:(NSTabView *)aTabView tabBarViewWillUnhide:(MMTabBarView *)tabBarView;
 - (void)tabView:(NSTabView *)aTabView tabBarViewDidHide:(MMTabBarView *)tabBarView;
 - (void)tabView:(NSTabView *)aTabView tabBarViewDidUnhide:(MMTabBarView *)tabBarView;
 

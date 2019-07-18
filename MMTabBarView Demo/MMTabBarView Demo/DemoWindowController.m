@@ -591,6 +591,14 @@
 	[[self window] close];
 }
 
+- (void)tabView:(NSTabView *)aTabView tabBarViewWillHide:(MMTabBarView *)tabBarView {
+    NSLog(@"tabBarViewWillHide: %@", tabBarView);
+}
+
+- (void)tabView:(NSTabView *)aTabView tabBarViewWillUnhide:(MMTabBarView *)tabBarView {
+    NSLog(@"tabBarViewWillUnhide: %@", tabBarView);
+}
+
 - (void)tabView:(NSTabView *)aTabView tabBarViewDidHide:(MMTabBarView *)tabBarView {
 	NSLog(@"tabBarViewDidHide: %@", tabBarView);
 }
