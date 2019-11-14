@@ -15,6 +15,9 @@
 #import "NSCell+MMTabBarViewExtensions.h"
 
 @implementation MMTabBarButtonCell
+{
+    NSBundle *_bundle;
+}
 
 @synthesize objectCount = _objectCount;
 @synthesize showObjectCount = _showObjectCount;
@@ -43,6 +46,8 @@
 		_hasCloseButton = YES;
 		_suppressCloseButton = NO;
 		_closeButtonOver = NO;
+        
+        _bundle = [NSBundle bundleForClass:self.class];
 	}
 	return self;
 }
@@ -557,23 +562,35 @@
 	NSRange range = NSMakeRange(0, [contents length]);
     
     NSFont *font = [NSFont systemFontOfSize:11.0];
-    
+
     BOOL selected = NO;
-    
-    if (!forceBold && controlView && [[self tabBarView] hasBoldSelection])
+    if (controlView)
     {
         MMAttachedTabBarButton *button = (MMAttachedTabBarButton *)controlView;
-        
         selected = [button state] == NSOnState;
     }
     
-    if (selected || forceBold)
+    if ((selected && [[self tabBarView] hasBoldSelection]) || forceBold)
     {
         font = [NSFont boldSystemFontOfSize:11.0];
     }
     
+    NSColor *textColor;
+    if (@available(macOS 10_13, *))
+    {
+        if (!selected)
+        {
+            textColor = [NSColor colorNamed:@"UnselectedTabTextColor" bundle:self->_bundle];
+        }
+    }
+    
+    if (!textColor)
+    {
+        textColor = [NSColor controlTextColor];
+    }
+    
     [attrStr addAttribute:NSFontAttributeName value:font range:range];
-    [attrStr addAttribute:NSForegroundColorAttributeName value:[NSColor controlTextColor] range:range];
+    [attrStr addAttribute:NSForegroundColorAttributeName value:textColor range:range];
     
 	// Paragraph Style for Truncating Long Text
 	static NSMutableParagraphStyle *truncatingTailParagraphStyle = nil;
