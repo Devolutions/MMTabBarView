@@ -93,28 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
 	BOOL                            _allowsBackgroundTabClosing;
 	BOOL                            _selectsTabsOnMouseDown;
 	
-	// vertical tab resizing
-	BOOL                            _allowsResizing;
-	
-	// button width
-	NSInteger                       _buttonMinWidth;
-	NSInteger                       _buttonMaxWidth;
-	NSInteger                       _buttonOptimumWidth;
-	
-	// animation
-	MMSlideButtonsAnimation         *_slideButtonsAnimation;
-	
-	// animation for hide/show
-	NSViewAnimation                 *_hideShowTabBarAnimation;
-	BOOL                            _isHidden;
-	NSInteger                       _tabBarWidth;   // stored width of vertical tab bar
-	
-	// states
-	BOOL                            _needsUpdate;
-	
-	// delegate
-	id <MMTabBarViewDelegate>       _delegate;
-	
 	@private
 	NSView *_partnerView;
 	NSUInteger _destinationIndexForDraggedItem;
