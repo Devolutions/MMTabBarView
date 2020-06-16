@@ -2597,11 +2597,12 @@ static NSMutableDictionary<NSString*, Class <MMTabStyle>> *registeredStyleClasse
 
     id <MMTabBarItem> dataSource = nil;
     
+    // Can't check for protocol conformity as the RDM model does not conform to the MMTabBarItem protocol
     if (item.identifier &&
-        [(NSObject*) item.identifier conformsToProtocol:@protocol(MMTabBarItem)] &&
+        /*[(NSObject*) item.identifier conformsToProtocol:@protocol(MMTabBarItem)] &&*/
         [(NSObject*) item.identifier respondsToSelector:sel]) {
         dataSource = item.identifier;
-    } else if ([item conformsToProtocol:@protocol(MMTabBarItem)] &&
+    } else if (/*[item conformsToProtocol:@protocol(MMTabBarItem)] &&*/
                [item respondsToSelector:sel]) {
         dataSource = (id <MMTabBarItem>)item;
     }
