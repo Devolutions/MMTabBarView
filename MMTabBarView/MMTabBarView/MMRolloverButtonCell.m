@@ -7,6 +7,8 @@
 
 #import "MMRolloverButtonCell.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation MMRolloverButtonCell
 
 @dynamic rolloverButtonType;
@@ -25,21 +27,16 @@
     return self;
 }
 
-- (void)dealloc
-{
-    _rolloverImage = nil;
-}
+- (void)drawImage:(NSImage*) image withFrame:(NSRect)frame inView:(NSView*)controlView {
+	if (_mouseHovered && !self.isHighlighted) {
+		NSImage* const image = _rolloverImage;
+		if (image != nil) {
+			[super drawImage:image withFrame:frame inView:controlView];
+			return;
+		}
+	}
 
-- (void)drawImage:(NSImage *)image withFrame:(NSRect)frame inView:(NSView *)controlView {
-
-    if (_mouseHovered && ![self isHighlighted]) {
-        if (_rolloverImage) {
-            [super drawImage:_rolloverImage withFrame:frame inView:controlView];
-            return;
-        }
-    }
-
-    [super drawImage:image withFrame:frame inView:controlView];
+	[super drawImage:image withFrame:frame inView:controlView];
 }
 
 #pragma mark -
@@ -64,13 +61,13 @@
             break;
     }
     
-    [(NSControl *)[self controlView] updateCell:self];
+    [(NSControl *)self.controlView updateCell:self];
 }
 
 #pragma mark -
 #pragma mark Tracking Area Support
 
-- (void)addTrackingAreasForView:(NSView *)controlView inRect:(NSRect)cellFrame withUserInfo:(NSDictionary *)userInfo mouseLocation:(NSPoint)mouseLocation {
+- (void)addTrackingAreasForView:(NSView *)controlView inRect:(NSRect)cellFrame withUserInfo:(nullable NSDictionary<id, id> *)userInfo mouseLocation:(NSPoint)mouseLocation {
 
     NSTrackingAreaOptions options = 0;
     BOOL mouseIsInside = NO;
@@ -94,18 +91,18 @@
 
 - (void)mouseEntered:(NSEvent *)event {
 
-    if (_simulateClickOnMouseHovered && [event modifierFlags] & NSAlternateKeyMask) {
+    if (_simulateClickOnMouseHovered && event.modifierFlags & NSAlternateKeyMask) {
         [self performClick:self];
         return;
     }
 
     _mouseHovered = YES;
-    [(NSControl *)[self controlView] updateCell:self];
+    [(NSControl *)self.controlView updateCell:self];
 }
 
 - (void)mouseExited:(NSEvent *)event {
     _mouseHovered = NO;
-    [(NSControl *)[self controlView] updateCell:self];
+    [(NSControl *)self.controlView updateCell:self];
 }
 
 #pragma mark -
@@ -113,7 +110,7 @@
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
 	[super encodeWithCoder:aCoder];
-	if ([aCoder allowsKeyedCoding]) {
+	if (aCoder.allowsKeyedCoding) {
         [aCoder encodeObject:_rolloverImage forKey:@"rolloverImage"];
         [aCoder encodeInteger:_simulateClickOnMouseHovered forKey:@"simulateClickOnMouseHovered"];
         [aCoder encodeInteger:_rolloverButtonType forKey:@"rolloverButtonType"];
@@ -124,7 +121,7 @@
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
 	self = [super initWithCoder:aDecoder];
 	if (self) {
-		if ([aDecoder allowsKeyedCoding]) {
+		if (aDecoder.allowsKeyedCoding) {
             _rolloverImage = [aDecoder decodeObjectForKey:@"rolloverImage"];
             _simulateClickOnMouseHovered = [aDecoder decodeIntegerForKey:@"simulateClickOnMouseHovered"];
             _rolloverButtonType = [aDecoder decodeIntegerForKey:@"rolloverButtonType"];
@@ -136,7 +133,7 @@
 #pragma mark -
 #pragma mark Copying
 
-- (id)copyWithZone:(NSZone *)zone {
+- (id)copyWithZone:(nullable NSZone *)zone {
 
     MMRolloverButtonCell *cellCopy = [super copyWithZone:zone];
     if (cellCopy) {
@@ -149,3 +146,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

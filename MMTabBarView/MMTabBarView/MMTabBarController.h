@@ -6,16 +6,17 @@
 //  Copyright 2006 Kent Sutherland. All rights reserved.
 //
 
+#if __has_feature(modules)
+@import Cocoa;
+#else
 #import <Cocoa/Cocoa.h>
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 @class MMTabBarView, MMAttachedTabBarButton;
 
 @interface MMTabBarController : NSObject <NSMenuDelegate>
-{
-	@private
-	MMTabBarView	*_tabBarView;
-	NSMenu			*_overflowMenu;
-}
 
 - (instancetype)initWithTabBarView:(MMTabBarView *)aTabBarView;
 
@@ -24,3 +25,5 @@
 - (void)layoutButtons;
 
 @end
+
+NS_ASSUME_NONNULL_END

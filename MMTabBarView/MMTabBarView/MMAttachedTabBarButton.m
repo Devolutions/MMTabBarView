@@ -13,6 +13,8 @@
 #import "MMTabStyle.h"
 #import "NSView+MMTabBarViewExtensions.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MMAttachedTabBarButton ()
 @end
 
@@ -26,8 +28,8 @@
     [super initialize];    
 }
 
-+ (Class)cellClass {
-    return [MMAttachedTabBarButtonCell class];
++ (nullable Class)cellClass {
+    return MMAttachedTabBarButtonCell.class;
 }
 
 - (instancetype)initWithFrame:(NSRect)frame tabViewItem:(NSTabViewItem *)anItem {
@@ -49,20 +51,15 @@
     return nil;
 }
 
-- (void)dealloc
-{
-    _tabViewItem = nil;
-}
-
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
 }
 
-- (MMAttachedTabBarButtonCell *)cell {
+- (nullable MMAttachedTabBarButtonCell *)cell {
     return (MMAttachedTabBarButtonCell *)[super cell];
 }
 
-- (void)setCell:(MMAttachedTabBarButtonCell *)aCell {
+- (void)setCell:(nullable MMAttachedTabBarButtonCell *)aCell {
     [super setCell:aCell];
 }
 
@@ -81,13 +78,13 @@
 
 - (NSRect)slidingFrame {
     @synchronized(self) {
-        return [self frame];
+        return self.frame;
     }
 }
 
 - (void)setSlidingFrame:(NSRect)aRect {
     @synchronized(self) {
-        aRect.origin.y = [self frame].origin.y;
+        aRect.origin.y = self.frame.origin.y;
         [self setFrame:aRect];
     }
 }
@@ -101,7 +98,7 @@
     
         // additionally synchronize label of tab view item if appropriate
     if (_tabViewItem && [_tabViewItem respondsToSelector:@selector(label)]) {
-        if (![[_tabViewItem label] isEqualToString:aString]) {
+        if (![_tabViewItem.label isEqualToString:aString]) {
             [_tabViewItem setLabel:aString];
         }
     }
@@ -112,15 +109,15 @@
 
 - (BOOL)shouldDisplayLeftDivider {
 
-    if ([self isSliding] || ([self tabState] & MMTab_PlaceholderOnLeft))
+    if (self.isSliding || (self.tabState & MMTab_PlaceholderOnLeft))
         return YES;
     
-    return [super shouldDisplayLeftDivider];
+    return super.shouldDisplayLeftDivider;
 }
 
 - (BOOL)shouldDisplayRightDivider {
     
-    if ([self isOverflowButton])
+    if (self.isOverflowButton)
         return NO;
     
     return YES;
@@ -130,11 +127,11 @@
 #pragma mark Interfacing Cell
 
 - (BOOL)isOverflowButton {
-    return [[self cell] isOverflowButton];
+    return self.cell.isOverflowButton;
 }
 
 - (void)setIsOverflowButton:(BOOL)value {
-    [[self cell] setIsOverflowButton:value];
+    [self.cell setIsOverflowButton:value];
 }
 
 #pragma mark -
@@ -142,16 +139,16 @@
 
 - (void)mouseDown:(NSEvent *)theEvent {
 
-    MMAttachedTabBarButton *previousSelectedButton = [self _selectedAttachedTabBarButton];
+    MMAttachedTabBarButton *previousSelectedButton = self._selectedAttachedTabBarButton;
 
-    MMTabBarView *tabBarView = [self tabBarView];
+    MMTabBarView *tabBarView = self.tabBarView;
 
         // select immediately
-    if ([tabBarView selectsTabsOnMouseDown]) {
+    if (tabBarView.selectsTabsOnMouseDown) {
         if (self != previousSelectedButton) {
             [previousSelectedButton setState:NSOffState];
             [self setState:NSOnState];
-            [self sendAction:[self action] to:[self target]];
+            [self sendAction:self.action to:self.target];
         }
     }
 
@@ -163,17 +160,17 @@
 
 - (void)mouseUp:(NSEvent *)theEvent {
 
-    MMTabBarView *tabBarView = [self tabBarView];
+    MMTabBarView *tabBarView = self.tabBarView;
     
-    NSPoint mouseUpPoint = [theEvent locationInWindow];
+    NSPoint mouseUpPoint = theEvent.locationInWindow;
     NSPoint mousePt = [self convertPoint:mouseUpPoint fromView:nil];
     
-    if (NSMouseInRect(mousePt, [self bounds], [self isFlipped])) {
-        if (![tabBarView selectsTabsOnMouseDown]) {
-            MMAttachedTabBarButton *previousSelectedButton = [self _selectedAttachedTabBarButton];
+    if (NSMouseInRect(mousePt, self.bounds, self.isFlipped)) {
+        if (!tabBarView.selectsTabsOnMouseDown) {
+            MMAttachedTabBarButton *previousSelectedButton = self._selectedAttachedTabBarButton;
             [previousSelectedButton setState:NSOffState];
             [self setState:NSOnState];
-            [self sendAction:[self action] to:[self target]];
+            [self sendAction:self.action to:self.target];
         }
     }
 }
@@ -183,24 +180,37 @@
 
 - (NSRect)draggingRect {
 
-    id <MMTabStyle> style = [self style];
-    MMTabBarView *tabBarView = [self tabBarView];
+    id <MMTabStyle> style = self.style;
+    MMTabBarView *tabBarView = self.tabBarView;
 
     NSRect draggingRect = NSZeroRect;
     
-    if (style && [style respondsToSelector:@selector(dragRectForTabButton:ofTabBarView:)]) {
+    if (style && [style respondsToSelector:@selector(draggingRectForTabButton:ofTabBarView:)]) {
         draggingRect = [style draggingRectForTabButton:self ofTabBarView:tabBarView];
     } else {
-        draggingRect = [self _draggingRect];
+        draggingRect = self._draggingRect;
     }
     
     return draggingRect;
 }
 
+inline static NSBitmapImageRep* imageForView(NSView* const inView, NSRect const inBounds) {
+	if (@available(macOS 10.14, *)) {
+		NSBitmapImageRep* const imageRep = [inView bitmapImageRepForCachingDisplayInRect:inView.visibleRect];
+		[inView cacheDisplayInRect:inBounds toBitmapImageRep:imageRep];
+		return imageRep;
+	}
+	[inView lockFocus];
+	[inView display];  // forces update to ensure that we get current state
+	NSBitmapImageRep* imageRep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:inBounds];
+	[inView unlockFocus];
+	return imageRep;
+}
+
 - (NSImage *)dragImage {
 
         // assure that we will draw the tab bar contents correctly
-    [self setFrame:[self stackingFrame]];
+    [self setFrame:self.stackingFrame];
 
     MMTabBarView *tabBarView = [self tabBarView];
 
@@ -253,12 +263,14 @@
 
 - (MMAttachedTabBarButton *)_selectedAttachedTabBarButton {
 
-    MMTabBarView *tabBarView = [self enclosingTabBarView];
-    return [tabBarView selectedAttachedButton];
+    MMTabBarView *tabBarView = self.enclosingTabBarView;
+    return tabBarView.selectedAttachedButton;
 }
 
 - (NSRect)_draggingRect {
-    return [self frame];
+    return self.frame;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

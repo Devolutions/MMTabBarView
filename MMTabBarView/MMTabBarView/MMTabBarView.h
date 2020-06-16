@@ -10,43 +10,47 @@
    This view provides a control interface to manage a regular NSTabView.  It looks and works like the tabbed browsing interface of many popular browsers.
  */
 
+#if __has_feature(modules)
+@import Cocoa;
+#else
 #import <Cocoa/Cocoa.h>
-#import "MMOverflowPopUpButton.h"
+#endif
 
-#define MMTabDragDidEndNotification     @"MMTabDragDidEndNotification"
-#define MMTabDragDidBeginNotification   @"MMTabDragDidBeginNotification"
+#pragma mark Umbrella Header section
 
-#define kMMTabBarViewHeight             25
-// default inset
-#define MARGIN_X                        6
-#define MARGIN_Y                        3
-// padding between objects
-#define kMMTabBarCellPadding            4
-// fixed size objects
-#define kMMMinimumTitleWidth            30
-#define kMMTabBarIndicatorWidth         16.0
-#define kMMTabBarIconWidth              16.0
-#define kMMObjectCounterMinWidth        20.0
-#define kMMObjectCounterRadius          7.0
-#define kMMTabBarViewSourceListHeight   28
+//! Project version number for GameworkSDK.
+FOUNDATION_EXPORT double MMTabBarViewVersionNumber;
 
-#define StaticImage(name) \
-static NSImage* _static##name##Image() \
-{ \
-    static NSImage* image = nil; \
-    if (!image) \
-        image = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@#name]]; \
-    return image; \
-}
+//! Project version string for GameworkSDK.
+FOUNDATION_EXPORT const unsigned char MMTabBarViewVersionString[];
 
-#define StaticImageWithFilename(name, filename) \
-static NSImage* _static##name##Image() \
-{ \
-    static NSImage* image = nil; \
-    if (!image) \
-        image = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@#filename]]; \
-    return image; \
-}
+#import <MMTabBarView/MMTabBarView.Globals.h>
+
+#import <MMTabBarView/MMTabBarItem.h>
+
+#import <MMTabBarView/MMTabBarButton.h>
+#import <MMTabBarView/MMTabBarButtonCell.h>
+
+#import <MMTabBarView/MMAttachedTabBarButton.h>
+#import <MMTabBarView/MMAttachedTabBarButtonCell.h>
+
+#import <MMTabBarView/MMOverflowPopUpButton.h>
+#import <MMTabBarView/MMOverflowPopUpButtonCell.h>
+
+#import <MMTabBarView/MMAdiumTabStyle.h>
+#import <MMTabBarView/MMAquaTabStyle.h>
+#import <MMTabBarView/MMCardTabStyle.h>
+#import <MMTabBarView/MMLiveChatTabStyle.h>
+#import <MMTabBarView/MMMetalTabStyle.h>
+#import <MMTabBarView/MMMojaveTabStyle.h>
+#import <MMTabBarView/MMSafariTabStyle.h>
+#import <MMTabBarView/MMUnifiedTabStyle.h>
+#import <MMTabBarView/MMYosemiteTabStyle.h>
+
+#import <MMTabBarView/NSBezierPath+MMTabBarViewExtensions.h>
+#import <MMTabBarView/NSTabViewItem+MMTabBarViewExtensions.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 @class MMRolloverButton;
 @class MMTabBarViewler;
@@ -56,53 +60,6 @@ static NSImage* _static##name##Image() \
 @class MMTabBarController;
 
 @protocol MMTabStyle;
-
-/**
- *  Tab bar orientation
- */
-typedef NS_ENUM(NSUInteger, MMTabBarOrientation){
-/**
- *  Horizontal orientation
- */
-MMTabBarHorizontalOrientation = 0,
-/**
- *  Vertical orientation
- */
-MMTabBarVerticalOrientation
-};
-
-/**
- *  Tear off style
- */
-typedef NS_ENUM(NSUInteger, MMTabBarTearOffStyle){
-/**
- *  Show alpha window
- */
-MMTabBarTearOffAlphaWindow,
-/**
- *  Show mini window
- */
-MMTabBarTearOffMiniwindow
-};
-
-/**
- *  Attached tab bar buttons enumeration options
- */
-typedef NS_ENUM(NSUInteger, MMAttachedButtonsEnumerationOptions){
-/**
- *  No options
- */
-MMAttachedButtonsEnumerationNone               = 0,
-/**
- *  Update tab state
- */
-MMAttachedButtonsEnumerationUpdateTabStateMask = 1 << 1,
-/**
- *  Update button state
- */
-MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
-};
-
 @protocol MMTabBarViewDelegate;
 
 @interface MMTabBarView : NSView <NSDraggingSource, NSDraggingDestination, NSAnimationDelegate>
@@ -184,7 +141,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 /**
  *  A partner view
  */
-@property (strong) IBOutlet NSView *partnerView;
+@property (nullable, strong) IBOutlet NSView *partnerView;
 
 /**
  *  Delegate
@@ -274,7 +231,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
  *
  *  @return Array of all registered classes
  */
-+ (NSArray *)registeredTabStyleClasses;
++ (NSArray<Class <MMTabStyle>> *)registeredTabStyleClasses;
 
 /**
  *  Get registered class for specified tab style name
@@ -283,7 +240,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
  *
  *  @return The matching tab style class
  */
-+ (Class <MMTabStyle>)registeredClassForStyleName:(NSString *)name;
++ (nullable Class <MMTabStyle>)registeredClassForStyleName:(NSString *)name;
 
 #pragma mark Tab View Item Management
 
@@ -300,7 +257,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 /**
  *  Get array of visible tab view items
  */
-@property (readonly) NSArray *visibleTabViewItems;
+@property (readonly) NSArray<NSTabViewItem*> *visibleTabViewItems;
 
 /**
  *  Get index of specified tab view item
@@ -314,7 +271,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 /**
  *  Get selected tab view item
  */
-@property (readonly) NSTabViewItem *selectedTabViewItem;
+@property (nullable, readonly) NSTabViewItem *selectedTabViewItem;
 
 /**
  *  Select specified tab view item
@@ -353,12 +310,12 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 /**
  *  Get array of all attached tab bar buttons
  */
-@property (readonly) NSSet *attachedButtons;
+@property (readonly) NSSet<MMAttachedTabBarButton *> *attachedButtons;
 
 /**
  *  Get ordered array of attached tab bar buttons
  */
-@property (readonly) NSArray *orderedAttachedButtons;
+@property (readonly) NSArray<MMAttachedTabBarButton *> *orderedAttachedButtons;
 
 /**
  *  Get array of attached tab bar buttons sorted by using a comparator
@@ -367,7 +324,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
  *
  *  @return The sorted array
  */
-- (NSArray *)sortedAttachedButtonsUsingComparator:(NSComparator)cmptr;
+- (NSArray<MMAttachedTabBarButton *> *)sortedAttachedButtonsUsingComparator:(NSComparator)cmptr;
 
 /**
  *  INsert attached tab bar button for specified tab view item
@@ -380,7 +337,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 /**
  *  Add attached tab bar button for specified tab view item
  *
- *  @param tab view item to add attached tab bar button for
+ *  @param item view item to add attached tab bar button for
  */
 - (void)addAttachedButtonForTabViewItem:(NSTabViewItem *)item;
 
@@ -427,7 +384,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 /**
  *   Get last attached tab bar button
  */
-@property (readonly) MMAttachedTabBarButton *lastAttachedButton;
+@property (nullable, readonly) MMAttachedTabBarButton *lastAttachedButton;
 
 /**
  *  Get attached tab bar button at point
@@ -496,7 +453,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
  *  @param opts  Options (@see MMAttachedButtonsEnumerationOptions)
  *  @param block Block to execute
  */
-- (void)enumerateAttachedButtonsWithOptions:(MMAttachedButtonsEnumerationOptions)opts usingBlock:(void (^)(MMAttachedTabBarButton *aButton, NSUInteger idx, MMAttachedTabBarButton *previousButton, MMAttachedTabBarButton *nextButton, BOOL *stop))block;
+- (void)enumerateAttachedButtonsWithOptions:(MMAttachedButtonsEnumerationOptions)opts usingBlock:(nullable void (^)(MMAttachedTabBarButton *aButton, NSUInteger idx, MMAttachedTabBarButton *previousButton, MMAttachedTabBarButton *nextButton, BOOL *stop))block;
 
 /**
  *  Enumerate attached tab bar buttons in range with options
@@ -506,7 +463,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
  *  @param opts    Options (@see MMAttachedButtonsEnumerationOptions)
  *  @param block   Block to execute
  */
-- (void)enumerateAttachedButtons:(NSArray *)buttons inRange:(NSRange)range withOptions:(MMAttachedButtonsEnumerationOptions)opts usingBlock:(void (^)(MMAttachedTabBarButton *aButton, NSUInteger idx, MMAttachedTabBarButton *previousButton, MMAttachedTabBarButton *nextButton, BOOL *stop))block;
+- (void)enumerateAttachedButtons:(NSArray<MMAttachedTabBarButton *> *)buttons inRange:(NSRange)range withOptions:(MMAttachedButtonsEnumerationOptions)opts usingBlock:(void (^)(MMAttachedTabBarButton *aButton, NSUInteger idx, MMAttachedTabBarButton *previousButton, MMAttachedTabBarButton *nextButton, BOOL *stop))block;
 
 #pragma mark Find Tab Bar Buttons
 
@@ -687,7 +644,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 
 - (void)startDraggingAttachedTabBarButton:(MMAttachedTabBarButton *)aButton withMouseDownEvent:(NSEvent *)theEvent;
 
-- (MMAttachedTabBarButton *)attachedTabBarButtonForDraggedItems;
+- (nullable MMAttachedTabBarButton *)attachedTabBarButtonForDraggedItems;
 
 - (BOOL)isSliding;
 - (BOOL)isDragging;
@@ -747,7 +704,7 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 - (void)tabView:(NSTabView*)aTabView didDropTabViewItem:(NSTabViewItem *)tabViewItem inTabBarView:(MMTabBarView *)tabBarView;
 
     // "Spring-loaded" tabs methods
-- (NSArray *)allowedDraggedTypesForTabView:(NSTabView *)aTabView;
+- (NSArray<NSPasteboardType> *)allowedDraggedTypesForTabView:(NSTabView *)aTabView;
 - (BOOL)tabView:(NSTabView *)aTabView acceptedDraggingInfo:(id <NSDraggingInfo>) draggingInfo onTabViewItem:(NSTabViewItem *)tabViewItem;
 
     // Tear-off related methods
@@ -778,3 +735,5 @@ MMAttachedButtonsEnumerationUpdateButtonState  = 1 << 2
 - (NSDragOperation)tabView:(NSTabView *)aTabView shouldDropTabViewItem:(NSTabViewItem *)tabViewItem inTabBarView:(MMTabBarView *)tabBarView __attribute__((deprecated("implement -tabView:validateDrop:proposedIndex:inTabBarView: instead.")));
 
 @end
+
+NS_ASSUME_NONNULL_END

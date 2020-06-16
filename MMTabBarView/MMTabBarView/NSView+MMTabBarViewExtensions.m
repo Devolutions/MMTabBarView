@@ -11,8 +11,10 @@
 #import "MMTabBarView.h"
 #import "MMTabBarButton.h"
 
-#define MMDragStartHysteresisX                 5.0f
-#define MMDragStartHysteresisY                 5.0f
+NS_ASSUME_NONNULL_BEGIN
+
+#define MMDragStartHysteresisX                 5.0
+#define MMDragStartHysteresisY                 5.0
 
 @implementation NSView (MMTabBarExtensions)
 
@@ -36,22 +38,22 @@
             *mouseUp = nil;
     BOOL dragIt = NO;
     
-    while ((nextEvent = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask) untilDate:expiration inMode:NSEventTrackingRunLoopMode dequeue:YES]) != nil) {
+    while ((nextEvent = [self.window nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask) untilDate:expiration inMode:NSEventTrackingRunLoopMode dequeue:YES]) != nil) {
     
         if (firstEvent == nil) {
             firstEvent = nextEvent;
         }
         
-        if ([nextEvent type] == NSLeftMouseDragged) {
-            CGFloat deltaX = ABS([nextEvent locationInWindow].x - [mouseDownEvent locationInWindow].x);
-            CGFloat deltaY = ABS([nextEvent locationInWindow].y - [mouseDownEvent locationInWindow].y);
+        if (nextEvent.type == NSLeftMouseDragged) {
+            CGFloat deltaX = ABS(nextEvent.locationInWindow.x - mouseDownEvent.locationInWindow.x);
+            CGFloat deltaY = ABS(nextEvent.locationInWindow.y - mouseDownEvent.locationInWindow.y);
             dragEvent = nextEvent;
         
             if (deltaX >= xHysteresis || deltaY >= yHysteresis) {
                 dragIt = YES;
                 break;
             }
-        } else if ([nextEvent type] == NSLeftMouseUp) {
+        } else if (nextEvent.type == NSLeftMouseUp) {
             mouseUp = nextEvent;
             break;
         }
@@ -72,30 +74,32 @@
 }
 
 - (NSView *)mm_superviewOfClass:(Class)class {
-    NSView *view = [self superview];
+    NSView *view = self.superview;
     while (view  && ![view isKindOfClass:class])
-        view = [view superview];
+        view = view.superview;
     return view;
 }
 
 -(MMTabBarView *)enclosingTabBarView {
-    return (MMTabBarView *)[self mm_superviewOfClass:[MMTabBarView class]];
+    return (MMTabBarView *)[self mm_superviewOfClass:MMTabBarView.class];
 }
 
 - (MMTabBarButton *)enclosingTabBarButton {
-    return (MMTabBarButton *)[self mm_superviewOfClass:[MMTabBarButton class]];
+    return (MMTabBarButton *)[self mm_superviewOfClass:MMTabBarButton.class];
 }
 
 - (void)orderFront {
 
-    NSView *superview = [self superview];
+    NSView *superview = self.superview;
     if (!superview)
         return;
     
-    NSMutableArray *subviews = [[superview subviews] mutableCopy];
+    NSMutableArray<__kindof NSView *> *subviews = [superview.subviews mutableCopy];
     [subviews removeObjectIdenticalTo:self];
     [subviews addObject:self];
     [superview setSubviews:subviews];
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

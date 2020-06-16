@@ -13,6 +13,10 @@
 #import "MMTabBarView.h"
 #import "NSView+MMTabBarViewExtensions.h"
 #import "NSBezierPath+MMTabBarViewExtensions.h"
+#import "MMOverflowPopUpButton.h"
+#import "MMTabBarView.Private.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MMYosemiteTabStyle
 {
@@ -38,7 +42,7 @@ StaticImage(YosemiteTabNewPressed)
 }
 
 - (NSString *)name {
-	return [[self class] name];
+	return self.class.name;
 }
 
 #pragma mark -
@@ -46,8 +50,11 @@ StaticImage(YosemiteTabNewPressed)
 
 - (id) init {
 	if ((self = [super init])) {
-		_leftMarginForTabBarView = -1.0f;
+		_leftMarginForTabBarView = 0.0;
         _bundle = [NSBundle bundleForClass:self.class];
+        _hasBaseline = YES;
+        
+        _needsResizeTabsToFitTotalWidth = YES;
 	}
     
 	return self;
@@ -58,44 +65,47 @@ StaticImage(YosemiteTabNewPressed)
 
 - (NSSize)intrinsicContentSizeOfTabBarView:(MMTabBarView *)tabBarView
 {
-    return NSMakeSize(NSViewNoIntrinsicMetric, 25);
+    return NSMakeSize(-1/* NSViewNoInstrinsicMetric */, 25);
 }
 
 - (CGFloat)leftMarginForTabBarView:(MMTabBarView *)tabBarView {
-    if ([tabBarView orientation] == MMTabBarHorizontalOrientation)
-        return -1.0f;
+    if (tabBarView.orientation == MMTabBarHorizontalOrientation)
+        return 0.0;
     else
-        return 0.0f;
+        return 0.0;
 }
 
 - (CGFloat)rightMarginForTabBarView:(MMTabBarView *)tabBarView {
-    if ([tabBarView orientation] == MMTabBarHorizontalOrientation)
-        return -1.0f;
+    if (tabBarView.orientation == MMTabBarHorizontalOrientation)
+        return 0.0;
     else
-        return 0.0f;
+        return 0.0;
 }
 
 - (CGFloat)topMarginForTabBarView:(MMTabBarView *)tabBarView {
-    if ([tabBarView orientation] == MMTabBarHorizontalOrientation)
-        return 0.0f;
+    if (tabBarView.orientation == MMTabBarHorizontalOrientation)
+        return 0.0;
 
-    return 0.0f;
+    return 0.0;
 }
 
 - (CGFloat)heightOfTabBarButtonsForTabBarView:(MMTabBarView *)tabBarView {
     return 25;
 }
 
+- (NSSize)overflowButtonSizeForTabBarView:(MMTabBarView *)tabBarView {
+    return NSMakeSize(14, [self heightOfTabBarButtonsForTabBarView:tabBarView]);
+}
 
 - (NSRect)addTabButtonRectForTabBarView:(MMTabBarView *)tabBarView {
-    NSRect window = [tabBarView frame];
-    NSSize buttonSize = [tabBarView addTabButtonSize];
-    NSRect rect = NSMakeRect(NSMaxX(window) - buttonSize.width - 5, 1, buttonSize.width, buttonSize.height);
+
+    NSRect rect = tabBarView._addTabButtonRect;
+
     return rect;
 }
 
 - (NSSize)addTabButtonSizeForTabBarView:(MMTabBarView *)tabBarView {
-    return NSMakeSize(18,[tabBarView frame].size.height);
+    return NSMakeSize(18, [self heightOfTabBarButtonsForTabBarView:tabBarView]);
 }
 
 - (BOOL)supportsOrientation:(MMTabBarOrientation)orientation forTabBarView:(MMTabBarView *)tabBarView {
@@ -111,7 +121,7 @@ StaticImage(YosemiteTabNewPressed)
 
 - (NSRect)draggingRectForTabButton:(MMAttachedTabBarButton *)aButton ofTabBarView:(MMTabBarView *)tabBarView {
 
-	NSRect dragRect = [aButton stackingFrame];
+	NSRect dragRect = aButton.stackingFrame;
 	dragRect.size.width++;
 	return dragRect;
     
@@ -180,13 +190,12 @@ StaticImage(YosemiteTabNewPressed)
 
 - (void)drawBezelOfTabBarView:(MMTabBarView *)tabBarView inRect:(NSRect)rect {
 	//Draw for our whole bounds; it'll be automatically clipped to fit the appropriate drawing area
-	rect = [tabBarView bounds];
-    tabBarView.resizeTabsToFitTotalWidth= YES;
+	rect = tabBarView.bounds;
 
 	NSRect gradientRect = rect;
 
-	if (![tabBarView isWindowActive]) {
-		[[NSColor windowBackgroundColor] set];
+	if (!tabBarView.isWindowActive) {
+		[NSColor.windowBackgroundColor set];
 	} else {
         NSColor *startColor;
         if (@available(macOS 10_13, *))
@@ -204,21 +213,23 @@ StaticImage(YosemiteTabNewPressed)
     
     [[MMYosemiteTabStyle getBorderColorForWindow:[tabBarView window] withBundle:self->_bundle] set];
 
-    [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMinY(rect) + 0.5)
-                              toPoint:NSMakePoint(NSMaxX(rect), NSMinY(rect) + 0.5)];
-
-    [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect) - 0.5)
-                              toPoint:NSMakePoint(NSMaxX(rect), NSMaxY(rect) - 0.5)];
+    if (self.hasBaseline) {
+        [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMinY(rect) + 0.5)
+                                  toPoint:NSMakePoint(NSMaxX(rect), NSMinY(rect) + 0.5)];
+        
+        [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect) - 0.5)
+                                  toPoint:NSMakePoint(NSMaxX(rect), NSMaxY(rect) - 0.5)];
+    }
 }
 
 
 -(void)drawBezelOfTabCell:(MMTabBarButtonCell *)cell withFrame:(NSRect)frame inView:(NSView *)controlView
 {
-    MMTabBarView *tabBarView = [controlView enclosingTabBarView];
+    MMTabBarView *tabBarView = controlView.enclosingTabBarView;
     MMAttachedTabBarButton *button = (MMAttachedTabBarButton *)controlView;
     
-    BOOL overflowMode = [button isOverflowButton];
-    if ([button isSliding])
+    BOOL overflowMode = button.isOverflowButton;
+    if (button.isSliding)
         overflowMode = NO;
     
     NSRect aRect = NSZeroRect;
@@ -228,9 +239,11 @@ StaticImage(YosemiteTabNewPressed)
         aRect = NSMakeRect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
     }
     
-    aRect.origin.y += 1;
-    aRect.size.height -= 2;
-    
+    if (self.hasBaseline) {
+        aRect.origin.y += 1;
+        aRect.size.height -= 2;
+    }
+        
     if (overflowMode) {
         [self _drawCardBezelInRect:aRect withCapMask:MMBezierShapeLeftCap|MMBezierShapeFlippedVertically usingStatesOfAttachedButton:button ofTabBarView:tabBarView];
     } else {
@@ -240,38 +253,38 @@ StaticImage(YosemiteTabNewPressed)
 
 -(void)drawBezelOfOverflowButton:(MMOverflowPopUpButton *)overflowButton ofTabBarView:(MMTabBarView *)tabBarView inRect:(NSRect)rect {
 
-    MMAttachedTabBarButton *lastAttachedButton = [tabBarView lastAttachedButton];
-    if ([lastAttachedButton isSliding])
+    MMAttachedTabBarButton *lastAttachedButton = tabBarView.lastAttachedButton;
+    if (lastAttachedButton.isSliding)
         return;
     
-    NSWindow *window = [tabBarView window];
-    NSToolbar *toolbar = [window toolbar];
+    NSWindow *window = tabBarView.window;
+    NSToolbar *toolbar = window.toolbar;
     
-    NSRect frame = [overflowButton frame];
+    NSRect frame = overflowButton.frame;
     
-    if (toolbar && [toolbar isVisible]) {
+    if (toolbar && toolbar.isVisible) {
         
         NSRect aRect = NSMakeRect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
         aRect.size.width += 5.0;
-        aRect.origin.y += 1;
-        aRect.size.height -= 2;
+//        aRect.origin.y += 1;
+//        aRect.size.height -= 2;
         
         [self _drawCardBezelInRect:aRect withCapMask:MMBezierShapeRightCap|MMBezierShapeFlippedVertically usingStatesOfAttachedButton:lastAttachedButton ofTabBarView:tabBarView];
         
     } else {
-        NSRect aRect = NSMakeRect(frame.origin.x, frame.origin.y+0.5, frame.size.width-0.5f, frame.size.height-1.0);
+        NSRect aRect = NSMakeRect(frame.origin.x, frame.origin.y+0.5, frame.size.width-0.5, frame.size.height-1.0);
         aRect.size.width += 5.0;
         
         [self _drawBoxBezelInRect:aRect withCapMask:MMBezierShapeRightCap|MMBezierShapeFlippedVertically usingStatesOfAttachedButton:lastAttachedButton ofTabBarView:tabBarView];
         
-        if ([tabBarView showAddTabButton]) {
+        if (tabBarView.showAddTabButton) {
             
             NSColor *lineColor = [NSColor colorWithCalibratedWhite:0.576 alpha:1.0];
             [lineColor set];
             [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMaxX(aRect)+.5, NSMinY(aRect)) toPoint:NSMakePoint(NSMaxX(aRect)+0.5, NSMaxY(aRect))];
             
-            [[[NSColor whiteColor] colorWithAlphaComponent:0.5] set];
-            [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMaxX(aRect)+1.5f, NSMinY(aRect)+1.0) toPoint:NSMakePoint(NSMaxX(aRect)+1.5f, NSMaxY(aRect)-1.0)];
+            [[NSColor.whiteColor colorWithAlphaComponent:0.5] set];
+            [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMaxX(aRect)+1.5, NSMinY(aRect)+1.0) toPoint:NSMakePoint(NSMaxX(aRect)+1.5, NSMaxY(aRect)-1.0)];
         }        
     }
 }
@@ -287,8 +300,7 @@ StaticImage(YosemiteTabNewPressed)
 - (void)_drawCardBezelInRect:(NSRect)aRect withCapMask:(MMBezierShapeCapMask)capMask usingStatesOfAttachedButton:(MMAttachedTabBarButton *)button ofTabBarView:(MMTabBarView *)tabBarView {
 
     NSColor *lineColor = [MMYosemiteTabStyle getBorderColorForWindow:[tabBarView window] withBundle:self->_bundle];
-    
-    CGFloat radius = 0.0f;
+    CGFloat radius = 0.0;
         
     NSBezierPath *fillPath = [NSBezierPath bezierPathWithCardInRect:aRect radius:radius capMask:capMask|MMBezierShapeFillPath];
 
@@ -386,10 +398,10 @@ StaticImage(YosemiteTabNewPressed)
     capMask &= ~MMBezierShapeFillPath;
     
         // fill
-    if ([button state] == NSOnState) {
+    if (button.state == NSOnState) {
         [[NSColor colorWithCalibratedWhite:0.0 alpha:0.2] set];
-        NSRectFillUsingOperation(aRect, NSCompositeSourceAtop);
-    } else if ([button mouseHovered]) {
+        NSRectFillUsingOperation(aRect, NSCompositeSourceAtop);            
+    } else if (button.mouseHovered) {
         [[NSColor colorWithCalibratedWhite:0.0 alpha:0.1] set];
         NSRectFillUsingOperation(aRect, NSCompositeSourceAtop);
     }
@@ -438,3 +450,5 @@ StaticImage(YosemiteTabNewPressed)
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

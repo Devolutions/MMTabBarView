@@ -8,6 +8,8 @@
 
 #import "MMTabPasteboardItem.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation MMTabPasteboardItem
 
 @synthesize sourceIndex = _sourceIndex;
@@ -21,3 +23,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

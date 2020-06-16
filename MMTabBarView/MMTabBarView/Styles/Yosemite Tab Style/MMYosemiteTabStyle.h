@@ -8,8 +8,14 @@
 //  Copyright 2016 Ajin Man Tuladhar. All rights reserved.
 //
 
+#if __has_feature(modules)
+@import Cocoa;
+#else
 #import <Cocoa/Cocoa.h>
+#endif
 #import "MMTabStyle.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface MMYosemiteTabStyle : NSObject <MMTabStyle>
 {
@@ -18,4 +24,13 @@
 
 @property (assign) CGFloat leftMarginForTabBarView;
 
+@property (assign) BOOL hasBaseline;
+
+@property (retain) NSColor *selectedTabColor;
+@property (retain) NSColor *unselectedTabColor;
+
+@property (assign) BOOL needsResizeTabsToFitTotalWidth;
+
 @end
+
+NS_ASSUME_NONNULL_END

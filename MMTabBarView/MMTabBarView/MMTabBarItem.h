@@ -6,7 +6,13 @@
 //  Copyright (c) 2016 Michael Monscheuer. All rights reserved.
 //
 
+#if __has_feature(modules)
+@import Foundation;
+#else
 #import <Foundation/Foundation.h>
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 @protocol MMTabBarItem <NSObject>
 
@@ -15,17 +21,17 @@
 /**
  *  Title
  */
-@property (copy)   NSString  *title;
+@property (copy, nullable)   NSString  *title;
 
 /**
  *  Icon
  */
-@property (strong) NSImage   *icon;
+@property (strong, nullable) NSImage   *icon;
 
 /**
  *  Large image
  */
-@property (strong) NSImage   *largeImage;
+@property (strong, nullable) NSImage   *largeImage;
 
 /**
  *  Object count to display
@@ -58,3 +64,5 @@
 @property (assign) BOOL hasCloseButton;
 
 @end
+
+NS_ASSUME_NONNULL_END

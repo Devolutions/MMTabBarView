@@ -8,22 +8,30 @@
 
 #import "MMLiveChatTabStyle.h"
 #import "MMAttachedTabBarButton.h"
+#import "MMAttachedTabBarButtonCell.h"
 #import "MMTabBarView.h"
 #import "NSView+MMTabBarViewExtensions.h"
 #import "NSCell+MMTabBarViewExtensions.h"
 #import "NSBezierPath+MMTabBarViewExtensions.h"
+#import "MMTabBarButtonCell.h"
+#import "MMOverflowPopUpButton.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface MMLiveChatTabStyle ()
 @end
 
 @implementation MMLiveChatTabStyle
+{
+	NSDictionary<NSAttributedStringKey, id> *_objectCountStringAttributes;
+}
 
 + (NSString *)name {
     return @"LiveChat";
 }
 
 - (NSString *)name {
-	return [[self class] name];
+	return self.class.name;
 }
 
 #pragma mark -
@@ -31,56 +39,47 @@
 
 - (instancetype) init {
 	if ((self = [super init])) {
-		liveChatCloseButton = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabClose_Front"]];
-		liveChatCloseButtonDown = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabClose_Front_Pressed"]];
-		liveChatCloseButtonOver = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabClose_Front_Rollover"]];
+		liveChatCloseButton = [MMTabBarView.bundle imageForResource:@"AquaTabClose_Front"];
+		liveChatCloseButtonDown = [MMTabBarView.bundle imageForResource:@"AquaTabClose_Front_Pressed"];
+		liveChatCloseButtonOver = [MMTabBarView.bundle imageForResource:@"AquaTabClose_Front_Rollover"];
 
-		liveChatCloseDirtyButton = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabCloseDirty_Front"]];
-		liveChatCloseDirtyButtonDown = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabCloseDirty_Front_Pressed"]];
-		liveChatCloseDirtyButtonOver = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabCloseDirty_Front_Rollover"]];
+		liveChatCloseDirtyButton = [MMTabBarView.bundle imageForResource:@"AquaTabCloseDirty_Front"];
+		liveChatCloseDirtyButtonDown = [MMTabBarView.bundle imageForResource:@"AquaTabCloseDirty_Front_Pressed"];
+		liveChatCloseDirtyButtonOver = [MMTabBarView.bundle imageForResource:@"AquaTabCloseDirty_Front_Rollover"];
 
-		_objectCountStringAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:
-										[[NSColor whiteColor] colorWithAlphaComponent:0.85], NSForegroundColorAttributeName,
-										[[NSFontManager sharedFontManager] convertFont:[NSFont fontWithName:@"Lucida Grande" size:11.0] toHaveTrait:NSBoldFontMask], NSFontAttributeName,
-										nil];
+		NSFont* const font = [NSFont fontWithName:@"Lucida Grande" size:11.0];
+		NSFont* const styledFont = [NSFontManager.sharedFontManager convertFont:font toHaveTrait:NSBoldFontMask];
+		_objectCountStringAttributes = @{
+			NSFontAttributeName: styledFont != nil ? styledFont : font,
+			NSForegroundColorAttributeName: [NSColor.whiteColor colorWithAlphaComponent:0.85]
+		};
 		_leftMarginForTabBarView = 5.0;
 	}
 	return self;
-}
-
-- (void)dealloc {
-	liveChatCloseButton = nil;
-	liveChatCloseButtonDown = nil;
-	liveChatCloseButtonOver = nil;
-	liveChatCloseDirtyButton = nil;
-	liveChatCloseDirtyButtonDown = nil;
-	liveChatCloseDirtyButtonOver = nil;
-    
-	_objectCountStringAttributes = nil;
 }
 
 #pragma mark -
 #pragma mark Tab View Specific
 
 - (CGFloat)leftMarginForTabBarView:(MMTabBarView *)tabBarView {
-    if ([tabBarView orientation] == MMTabBarHorizontalOrientation)
+    if (tabBarView.orientation == MMTabBarHorizontalOrientation)
         return _leftMarginForTabBarView;
     else
         return 0.0;
 }
 
 - (CGFloat)rightMarginForTabBarView:(MMTabBarView *)tabBarView {
-    if ([tabBarView orientation] == MMTabBarHorizontalOrientation)
+    if (tabBarView.orientation == MMTabBarHorizontalOrientation)
         return _leftMarginForTabBarView;
     else
         return 0.0;
 }
 
 - (CGFloat)topMarginForTabBarView:(MMTabBarView *)tabBarView {
-    if ([tabBarView orientation] == MMTabBarHorizontalOrientation)
+    if (tabBarView.orientation == MMTabBarHorizontalOrientation)
         return 0.0;
     else
-        return 0.0f;
+        return 0.0;
 }
 
 - (BOOL)supportsOrientation:(MMTabBarOrientation)orientation forTabBarView:(MMTabBarView *)tabBarView {
@@ -96,7 +95,7 @@
 
 - (NSRect)draggingRectForTabButton:(MMAttachedTabBarButton *)aButton ofTabBarView:(MMTabBarView *)tabBarView {
 
-	NSRect dragRect = [aButton stackingFrame];
+	NSRect dragRect = aButton.stackingFrame;
 	dragRect.size.width++;
 	return dragRect;
 }
@@ -131,23 +130,23 @@
 
 - (NSRect)iconRectForBounds:(NSRect)theRect ofTabCell:(MMTabBarButtonCell *)cell {
     
-    if (![cell icon])
+    if (!cell.icon)
         return NSZeroRect;
 
-    NSImage *icon = [cell icon];
+    NSImage *icon = cell.icon;
     if (!icon)
         return NSZeroRect;
 
-    MMTabBarView *tabBarView = [cell tabBarView];
-    MMTabBarOrientation orientation = [tabBarView orientation];
+    MMTabBarView *tabBarView = cell.tabBarView;
+    MMTabBarOrientation orientation = tabBarView.orientation;
     
-    if ([cell largeImage] && orientation == MMTabBarVerticalOrientation)
+    if (cell.largeImage && orientation == MMTabBarVerticalOrientation)
         return NSZeroRect;
         
     // calculate rect
     NSRect drawingRect = [cell drawingRectForBounds:theRect];
                 
-    NSSize iconSize = [icon size];
+    NSSize iconSize = icon.size;
     
     NSSize scaledIconSize = [cell mm_scaleImageWithSize:iconSize toFitInSize:NSMakeSize(iconSize.width, drawingRect.size.height) scalingType:NSImageScaleProportionallyDown];
 
@@ -198,11 +197,11 @@
         constrainedDrawingRect.size.width -= NSWidth(closeButtonRect) + kMMTabBarCellPadding;        
     }
                                     
-    NSAttributedString *attrString = [cell attributedStringValue];
-    if ([attrString length] == 0)
+    NSAttributedString *attrString = cell.attributedStringValue;
+    if (attrString.length == 0)
         return NSZeroRect;
         
-    NSSize stringSize = [attrString size];
+    NSSize stringSize = attrString.size;
     
     NSRect result = NSMakeRect(constrainedDrawingRect.origin.x, drawingRect.origin.y+ceil((drawingRect.size.height-stringSize.height)/2), constrainedDrawingRect.size.width, stringSize.height);
                     
@@ -211,7 +210,7 @@
 
 - (NSRect)objectCounterRectForBounds:(NSRect)theRect ofTabCell:(MMTabBarButtonCell *)cell {
 
-    if (![cell showObjectCount]) {
+    if (!cell.showObjectCount) {
         return NSZeroRect;
     }
 
@@ -231,7 +230,7 @@
         constrainedDrawingRect.size.width -= NSWidth(closeButtonRect) + kMMTabBarCellPadding;
         }
             
-    NSSize counterBadgeSize = [cell objectCounterSize];
+    NSSize counterBadgeSize = cell.objectCounterSize;
     
     // calculate rect
     NSRect result;
@@ -244,7 +243,7 @@
 
 - (NSRect)indicatorRectForBounds:(NSRect)theRect ofTabCell:(MMTabBarButtonCell *)cell {
 
-    if (![cell isProcessing]) {
+    if (!cell.isProcessing) {
         return NSZeroRect;
     }
 
@@ -268,7 +267,7 @@
 
 - (NSRect)closeButtonRectForBounds:(NSRect)theRect ofTabCell:(MMTabBarButtonCell *)cell {
 
-    if ([cell shouldDisplayCloseButton] == NO) {
+    if (cell.shouldDisplayCloseButton == NO) {
         return NSZeroRect;
     }
     
@@ -280,7 +279,7 @@
     // calculate rect
     NSRect drawingRect = [cell drawingRectForBounds:theRect];
         
-    NSSize imageSize = [image size];
+    NSSize imageSize = image.size;
     
     NSSize scaledImageSize = [cell mm_scaleImageWithSize:imageSize toFitInSize:NSMakeSize(imageSize.width, drawingRect.size.height) scalingType:NSImageScaleProportionallyDown];
 
@@ -295,7 +294,7 @@
 
 -(NSRect)largeImageRectForBounds:(NSRect)theRect ofTabCell:(MMTabBarButtonCell *)cell
 {
-    NSImage *image = [cell largeImage];
+    NSImage *image = cell.largeImage;
     
     if (!image) {
         return NSZeroRect;
@@ -306,7 +305,7 @@
 
     NSRect constrainedDrawingRect = drawingRect;
                 
-    NSSize scaledImageSize = [cell mm_scaleImageWithSize:[image size] toFitInSize:NSMakeSize(constrainedDrawingRect.size.width, constrainedDrawingRect.size.height) scalingType:NSImageScaleProportionallyUpOrDown];
+    NSSize scaledImageSize = [cell mm_scaleImageWithSize:image.size toFitInSize:NSMakeSize(constrainedDrawingRect.size.width, constrainedDrawingRect.size.height) scalingType:NSImageScaleProportionallyUpOrDown];
     
     NSRect result = NSMakeRect(constrainedDrawingRect.origin.x,
                                          constrainedDrawingRect.origin.y - ((constrainedDrawingRect.size.height - scaledImageSize.height) / 2),
@@ -326,22 +325,22 @@
 #pragma mark Cell Values
 
 - (NSAttributedString *)attributedObjectCountStringValueForTabCell:(MMTabBarButtonCell *)cell {
-	NSString *contents = [NSString stringWithFormat:@"%lu", (unsigned long)[cell objectCount]];
+	NSString *contents = [NSString stringWithFormat:@"%lu", (unsigned long)cell.objectCount];
 	return [[NSMutableAttributedString alloc] initWithString:contents attributes:_objectCountStringAttributes];
 }
 
 - (NSAttributedString *)attributedStringValueForTabCell:(MMTabBarButtonCell *)cell {
 	NSMutableAttributedString *attrStr;
-	NSString * contents = [cell title];
+	NSString * contents = cell.title;
 	attrStr = [[NSMutableAttributedString alloc] initWithString:contents];
-	NSRange range = NSMakeRange(0, [contents length]);
+	NSRange range = NSMakeRange(0, contents.length);
 
 	[attrStr addAttribute:NSFontAttributeName value:[NSFont systemFontOfSize:11.0] range:range];
 
 	// Paragraph Style for Truncating Long Text
 	static NSMutableParagraphStyle *TruncatingTailParagraphStyle = nil;
 	if (!TruncatingTailParagraphStyle) {
-		TruncatingTailParagraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+		TruncatingTailParagraphStyle = [NSParagraphStyle.defaultParagraphStyle mutableCopy];
 		[TruncatingTailParagraphStyle setLineBreakMode:NSLineBreakByTruncatingTail];
 	}
 	[attrStr addAttribute:NSParagraphStyleAttributeName value:TruncatingTailParagraphStyle range:range];
@@ -354,9 +353,9 @@
 
 - (void)drawBezelOfTabBarView:(MMTabBarView *)tabBarView inRect:(NSRect)rect {
 	//Draw for our whole bounds; it'll be automatically clipped to fit the appropriate drawing area
-	rect = [tabBarView bounds];
+	rect = tabBarView.bounds;
 
-	if ([tabBarView isWindowActive]) {
+	if (tabBarView.isWindowActive) {
 		NSRect gradientRect = rect;
 		gradientRect.origin.y += 1.0;
 		NSBezierPath *path = [NSBezierPath bezierPathWithRect:gradientRect];
@@ -371,13 +370,13 @@
 
 - (void)drawBezelOfTabCell:(MMTabBarButtonCell *)cell withFrame:(NSRect)frame inView:(NSView *)controlView {
 
-    MMTabBarView *tabBarView = [controlView enclosingTabBarView];
+    MMTabBarView *tabBarView = controlView.enclosingTabBarView;
     MMAttachedTabBarButton *button = (MMAttachedTabBarButton *)controlView;
     
     NSRect cellFrame = frame;
 
-	NSToolbar *toolbar = [[controlView window] toolbar];
-	BOOL showsBaselineSeparator = (toolbar && [toolbar respondsToSelector:@selector(showsBaselineSeparator)] && [toolbar showsBaselineSeparator]);
+	NSToolbar *toolbar = controlView.window.toolbar;
+	BOOL showsBaselineSeparator = (toolbar && [toolbar respondsToSelector:@selector(showsBaselineSeparator)] && toolbar.showsBaselineSeparator);
 	if (!showsBaselineSeparator) {
 		cellFrame.origin.y += 1.0;
 		cellFrame.size.height -= 1.0;
@@ -386,10 +385,10 @@
 	NSColor * lineColor = nil;
 	lineColor = [NSColor colorWithCalibratedWhite:0.576 alpha:1.0];
 
-	BOOL drawSelected = [cell state] == NSOnState;
+	BOOL drawSelected = cell.state == NSOnState;
 
-    BOOL overflowMode = [button isOverflowButton];
-    if ([button isSliding])
+    BOOL overflowMode = button.isOverflowButton;
+    if (button.isSliding)
         overflowMode = NO;
     
 	if (!showsBaselineSeparator || drawSelected) {
@@ -421,19 +420,19 @@
 		aRect.size.width += 1;
 
 		// rollover
-		if ([cell mouseHovered]) {
+		if (cell.mouseHovered) {
 			[[NSColor colorWithCalibratedWhite:0.0 alpha:0.1] set];
 			NSRectFillUsingOperation(aRect, NSCompositeSourceAtop);
 		}
 
 		// frame
 		[lineColor set];
-		if (!([cell tabState] & MMTab_RightIsSelectedMask)) {
+		if (!(cell.tabState & MMTab_RightIsSelectedMask)) {
 			[NSBezierPath strokeLineFromPoint:NSMakePoint(aRect.origin.x + aRect.size.width, aRect.origin.y + aRect.size.height - 0.5) toPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))];
 		}
 		// Create a thin lighter line next to the dividing line for a bezel effect
-		if (!([cell tabState] & MMTab_RightIsSelectedMask)) {
-			[[[NSColor whiteColor] colorWithAlphaComponent:0.5] set];
+		if (!(cell.tabState & MMTab_RightIsSelectedMask)) {
+			[[NSColor.whiteColor colorWithAlphaComponent:0.5] set];
 			[NSBezierPath strokeLineFromPoint:NSMakePoint(NSMaxX(aRect) + 1.0, aRect.origin.y - 0.5)
 			 toPoint:NSMakePoint(NSMaxX(aRect) + 1.0, NSMaxY(aRect) - 2.5)];
 		}
@@ -442,16 +441,16 @@
 
 - (void)drawBezelOfOverflowButton:(MMOverflowPopUpButton *)overflowButton ofTabBarView:(MMTabBarView *)tabBarView inRect:(NSRect)rect {
 
-    MMAttachedTabBarButton *lastAttachedButton = [tabBarView lastAttachedButton];
-    MMAttachedTabBarButtonCell *lastAttachedButtonCell = [lastAttachedButton cell];
+    MMAttachedTabBarButton *lastAttachedButton = tabBarView.lastAttachedButton;
+    MMAttachedTabBarButtonCell *lastAttachedButtonCell = lastAttachedButton.cell;
 
-    if ([lastAttachedButton isSliding])
+    if (lastAttachedButton.isSliding)
         return;
     
-    NSRect frame = [overflowButton frame];
+    NSRect frame = overflowButton.frame;
 
-	NSToolbar *toolbar = [[tabBarView window] toolbar];
-	BOOL showsBaselineSeparator = (toolbar && [toolbar respondsToSelector:@selector(showsBaselineSeparator)] && [toolbar showsBaselineSeparator]);
+	NSToolbar *toolbar = tabBarView.window.toolbar;
+	BOOL showsBaselineSeparator = (toolbar && [toolbar respondsToSelector:@selector(showsBaselineSeparator)] && toolbar.showsBaselineSeparator);
 	if (!showsBaselineSeparator) {
 		frame.origin.y += 1.0;
 		frame.size.height -= 1.0;
@@ -460,7 +459,7 @@
 	NSColor * lineColor = nil;
 	lineColor = [NSColor colorWithCalibratedWhite:0.576 alpha:1.0];
 
-	BOOL drawSelected = [lastAttachedButtonCell state] == NSOnState;
+	BOOL drawSelected = lastAttachedButtonCell.state == NSOnState;
     
 	if (!showsBaselineSeparator || drawSelected) {
 		// selected tab
@@ -497,20 +496,20 @@
     
     NSColor *lineColor = [NSColor colorWithCalibratedWhite:0.576 alpha:1.0];
 
-    CGFloat radius = MIN(6.0, 0.5f * MIN(NSWidth(aRect), NSHeight(aRect)));
+    CGFloat radius = MIN(6.0, 0.5 * MIN(NSWidth(aRect), NSHeight(aRect)));
 
-	BOOL drawSelected = [button state] == NSOnState;
+	BOOL drawSelected = button.state == NSOnState;
     
     NSBezierPath *fillPath = [NSBezierPath bezierPathWithCardInRect:aRect radius:radius capMask:capMask|MMBezierShapeFillPath];
 
     NSColor *startColor = nil;
     NSColor *endColor = nil;
 
-    if ([tabBarView isWindowActive]) {
+    if (tabBarView.isWindowActive) {
         if (drawSelected) {
             startColor = [NSColor colorWithCalibratedWhite:1.0 alpha:1.0];
             endColor = [NSColor colorWithCalibratedWhite:0.95 alpha:1.0];
-        } else if ([button mouseHovered]) {
+        } else if (button.mouseHovered) {
 
             startColor = [NSColor colorWithCalibratedWhite:0.80 alpha:1.0];
             endColor = [NSColor colorWithCalibratedWhite:0.80 alpha:1.0];
@@ -520,7 +519,7 @@
         endColor = [NSColor colorWithCalibratedWhite:0.95 alpha:1.0];
     }
     
-    NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:startColor endingColor:endColor];
+    NSGradient *gradient = [NSGradient.alloc initWithStartingColor:startColor endingColor:endColor];
     [gradient drawInBezierPath:fillPath angle:90.0];
 
     NSBezierPath *outlinePath = outlinePath = [NSBezierPath bezierPathWithCardInRect:aRect radius:radius capMask:capMask];
@@ -530,3 +529,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

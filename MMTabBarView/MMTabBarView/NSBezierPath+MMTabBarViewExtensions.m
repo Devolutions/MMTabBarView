@@ -10,6 +10,8 @@
 
 #import "NSAffineTransform+MMTabBarViewExtensions.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation NSBezierPath (MMTabBarViewExtensions)
 
 + (NSBezierPath *)bezierPathWithCardInRect:(NSRect)aRect radius:(CGFloat)radius capMask:(MMBezierShapeCapMask)mask {
@@ -18,7 +20,7 @@
 
         // Flip the final NSBezierPath.
     if (mask & MMBezierShapeFlippedVertically)
-        [bezier transformUsingAffineTransform:[[NSAffineTransform transform] mm_flipVertical:[bezier bounds]]];
+        [bezier transformUsingAffineTransform:[NSAffineTransform.transform mm_flipVertical:bezier.bounds]];
     
     return bezier;
 }
@@ -29,7 +31,7 @@
 
         // Flip the final NSBezierPath.
     if (mask & MMBezierShapeFlippedVertically)
-        [bezier transformUsingAffineTransform:[[NSAffineTransform transform] mm_flipVertical:[bezier bounds]]];
+        [bezier transformUsingAffineTransform:[NSAffineTransform.transform mm_flipVertical:bezier.bounds]];
     
     return bezier;
 }
@@ -39,7 +41,7 @@
 
 + (NSBezierPath *)_bezierPathWithCardInRect:(NSRect)aRect radius:(CGFloat)radius capMask:(MMBezierShapeCapMask)mask {
 
-    NSBezierPath *bezier = [NSBezierPath bezierPath];
+    NSBezierPath *bezier = NSBezierPath.bezierPath;
 
     if (mask & MMBezierShapeLeftCap) {
         [bezier moveToPoint: NSMakePoint(NSMinX(aRect),NSMaxY(aRect))];
@@ -68,7 +70,7 @@
 
 + (NSBezierPath *)_bezierPathWithRoundedRect:(NSRect)aRect radius:(CGFloat)radius capMask:(MMBezierShapeCapMask)mask {
 
-    NSBezierPath *bezier = [NSBezierPath bezierPath];
+    NSBezierPath *bezier = NSBezierPath.bezierPath;
 
     [bezier moveToPoint: NSMakePoint(NSMidX(aRect),NSMaxY(aRect))];
     if (mask & MMBezierShapeLeftCap) {
@@ -101,3 +103,5 @@
     return bezier;
 }
 @end
+
+NS_ASSUME_NONNULL_END

@@ -12,6 +12,11 @@
 #import "NSView+MMTabBarViewExtensions.h"
 #import "NSBezierPath+MMTabBarViewExtensions.h"
 #import "MMTabBarView.Private.h"
+#import "MMOverflowPopUpButton.h"
+
+#define USE_DYNAMIC_APPEARANCE 1
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation MMCardTabStyle
 
@@ -22,7 +27,7 @@
 }
 
 - (NSString *)name {
-	return [[self class] name];
+	return self.class.name;
 }
 
 #pragma mark -
@@ -30,50 +35,41 @@
 
 - (instancetype) init {
     if ( (self = [super init]) ) {
-        cardCloseButton = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabClose_Front"]];
-        cardCloseButtonDown = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabClose_Front_Pressed"]];
-        cardCloseButtonOver = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabClose_Front_Rollover"]];
+        cardCloseButton = [MMTabBarView.bundle imageForResource:@"AquaTabClose_Front"];
+        cardCloseButtonDown = [MMTabBarView.bundle imageForResource:@"AquaTabClose_Front_Pressed"];
+        cardCloseButtonOver = [MMTabBarView.bundle imageForResource:@"AquaTabClose_Front_Rollover"];
         
-        cardCloseDirtyButton = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabCloseDirty_Front"]];
-        cardCloseDirtyButtonDown = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabCloseDirty_Front_Pressed"]];
-        cardCloseDirtyButtonOver = [[NSImage alloc] initByReferencingFile:[[MMTabBarView bundle] pathForImageResource:@"AquaTabCloseDirty_Front_Rollover"]];
+        cardCloseDirtyButton = [MMTabBarView.bundle imageForResource:@"AquaTabCloseDirty_Front"];
+        cardCloseDirtyButtonDown = [MMTabBarView.bundle imageForResource:@"AquaTabCloseDirty_Front_Pressed"];
+        cardCloseDirtyButtonOver = [MMTabBarView.bundle imageForResource:@"AquaTabCloseDirty_Front_Rollover"];
                         
 		_horizontalInset = 3.0;
 	}
     return self;
 }
 
-- (void)dealloc {
-    cardCloseButton = nil;
-    cardCloseButtonDown = nil;
-    cardCloseButtonOver = nil;
-    cardCloseDirtyButton = nil;
-    cardCloseDirtyButtonDown = nil;
-    cardCloseDirtyButtonOver = nil;
-}
-
 #pragma mark -
 #pragma mark Tab View Specific
 
 - (CGFloat)leftMarginForTabBarView:(MMTabBarView *)tabBarView {
-    if ([tabBarView orientation] == MMTabBarHorizontalOrientation)
+    if (tabBarView.orientation == MMTabBarHorizontalOrientation)
         return _horizontalInset;
     else
         return 0.0;
 }
 
 - (CGFloat)rightMarginForTabBarView:(MMTabBarView *)tabBarView {
-    if ([tabBarView orientation] == MMTabBarHorizontalOrientation)
+    if (tabBarView.orientation == MMTabBarHorizontalOrientation)
         return _horizontalInset;
     else
         return 0.0;
 }
 
 - (CGFloat)topMarginForTabBarView:(MMTabBarView *)tabBarView {
-    if ([tabBarView orientation] == MMTabBarHorizontalOrientation)
+    if (tabBarView.orientation == MMTabBarHorizontalOrientation)
         return 2.0;
 
-    return 0.0f;
+    return 0.0;
 }
 
 - (CGFloat)heightOfTabBarButtonsForTabBarView:(MMTabBarView *)tabBarView {
@@ -94,7 +90,7 @@
 
 - (NSRect)draggingRectForTabButton:(MMAttachedTabBarButton *)aButton ofTabBarView:(MMTabBarView *)tabBarView {
 
-	NSRect dragRect = [aButton stackingFrame];
+	NSRect dragRect = aButton.stackingFrame;
 	dragRect.size.width++;
 	return dragRect;
 }
@@ -129,48 +125,163 @@
 
 - (NSRect)overflowButtonRectForTabBarView:(MMTabBarView *)tabBarView {
 
-    NSRect rect = [tabBarView _overflowButtonRect];
+    NSRect rect = tabBarView._overflowButtonRect;
     
-    rect.origin.y += [tabBarView topMargin];
-    rect.size.height -= [tabBarView topMargin];
+    rect.origin.y += tabBarView.topMargin;
+    rect.size.height -= tabBarView.topMargin;
     
     return rect;
 }
 
+#pragma mark - Cell Values
+
+
+- (NSAttributedString *)attributedStringValueForTabCell:(MMTabBarButtonCell *)cell
+ {
+    NSMutableAttributedString *attrStr;
+    NSString * contents = cell.title;
+    attrStr = [[NSMutableAttributedString alloc] initWithString:contents];
+    #if !__has_feature(objc_arc)
+		[attrStr autorelease];
+    #endif
+    NSRange range = NSMakeRange(0, [contents length]);
+    
+    [attrStr addAttribute:NSFontAttributeName value:[NSFont systemFontOfSize:11.0] range:range];
+    #if USE_DYNAMIC_APPEARANCE
+		NSColor *textColor;
+		if (([NSApp respondsToSelector:@selector(effectiveAppearance)]) && ([[[NSApp effectiveAppearance] name] isEqualToString:@"NSAppearanceNameDarkAqua"]))
+		{
+			if ([NSApp isActive])
+			{
+				if ([cell state] == NSOnState)
+	    			textColor=[NSColor controlTextColor];
+				else
+	    			textColor=[NSColor disabledControlTextColor];
+			}
+			else
+				textColor=[NSColor disabledControlTextColor];
+		}
+		else
+			textColor=[NSColor selectedControlTextColor];
+		[attrStr addAttribute:NSForegroundColorAttributeName value:textColor range:range];
+    #endif
+    
+    // Paragraph Style for Truncating Long Text
+    static NSMutableParagraphStyle *TruncatingTailParagraphStyle = nil;
+    if (!TruncatingTailParagraphStyle) {
+        TruncatingTailParagraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+		#if !__has_feature(objc_arc)
+			[TruncatingTailParagraphStyle retain];
+		#endif
+        [TruncatingTailParagraphStyle setLineBreakMode:NSLineBreakByTruncatingTail];
+    }
+    [attrStr addAttribute:NSParagraphStyleAttributeName value:TruncatingTailParagraphStyle range:range];
+    
+    return attrStr;	
+}
+
+
 #pragma mark -
 #pragma mark Drawing
 
+- (NSColor *)lineColor {
+	#if USE_DYNAMIC_APPEARANCE
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wunguarded-availability"
+		if ([[NSColor class] respondsToSelector:@selector(separatorColor)])
+			return [NSColor separatorColor];
+		#pragma clang diagnostic pop
+	#endif
+	return [NSColor colorWithCalibratedWhite:0.576 alpha:1.0];
+}
+
+- (NSColor *)gradientTopColorActive:(BOOL)inActive highlighted:(BOOL)inHighlighted {
+	#if USE_DYNAMIC_APPEARANCE
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wunguarded-availability"
+		if (inActive) {
+			if (([NSApp respondsToSelector:@selector(effectiveAppearance)])
+				&& ([[[NSApp effectiveAppearance] name] isEqualToString:@"NSAppearanceNameDarkAqua"])
+				&& ([[NSColor class] respondsToSelector:@selector(unemphasizedSelectedContentBackgroundColor)]))
+				return (NSColor *)[NSColor unemphasizedSelectedContentBackgroundColor];
+			else
+				return [NSColor colorWithDeviceWhite:1.0 alpha:1.0];
+ 		}
+		else if (inHighlighted) {
+			if ([[NSColor class] respondsToSelector:@selector(unemphasizedSelectedContentBackgroundColor)])
+				return(NSColor *) [[NSColor unemphasizedSelectedContentBackgroundColor] shadowWithLevel:0.1];
+			else
+				return [NSColor colorWithCalibratedWhite:0.80 alpha:1.0];
+		} else {
+			if ([[NSColor class] respondsToSelector:@selector(unemphasizedSelectedContentBackgroundColor)])
+				return (NSColor *)[NSColor unemphasizedSelectedContentBackgroundColor];
+			else
+				return [NSColor colorWithCalibratedWhite:0.835 alpha:1.0];
+		}
+		#pragma clang diagnostic pop
+	#else
+		if (inActive)
+			return [NSColor colorWithDeviceWhite:1.0 alpha:1.0];
+		else if (inHighlighted)
+			return [NSColor colorWithCalibratedWhite:0.80 alpha:1.0];
+		else
+			return [NSColor colorWithCalibratedWhite:0.835 alpha:1.0];
+	#endif
+}
+
+- (NSColor *)gradientBottomColorActive:(BOOL)inActive highlighted:(BOOL)inHighlighted {
+	#if USE_DYNAMIC_APPEARANCE
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wunguarded-availability"
+		if (inActive)
+			if ([NSApp respondsToSelector:@selector(effectiveAppearance)])
+				return [NSColor windowBackgroundColor];
+			else
+				return [NSColor colorWithDeviceWhite:237.0/255.0 alpha:1.0];
+		else if (inHighlighted) {
+			if ([[NSColor class] respondsToSelector:@selector(unemphasizedSelectedContentBackgroundColor)])
+				return (NSColor *)[[NSColor unemphasizedSelectedContentBackgroundColor] shadowWithLevel:0.1];
+			else
+				return [NSColor colorWithCalibratedWhite:0.80 alpha:1.0];
+		} else {
+			if ([[NSColor class] respondsToSelector:@selector(unemphasizedSelectedContentBackgroundColor)])
+				return (NSColor *)[NSColor unemphasizedSelectedContentBackgroundColor];
+			else
+				return [NSColor colorWithCalibratedWhite:0.843 alpha:1.0];
+		}
+		#pragma clang diagnostic pop
+	#else
+		if (inActive)
+			return [NSColor colorWithDeviceWhite:37.0/255.0 alpha:1.0];
+		else if (inHighlighted)
+			return [NSColor colorWithCalibratedWhite:0.80 alpha:1.0];
+		else
+			return [NSColor colorWithCalibratedWhite:0.843 alpha:1.0];
+	#endif
+}
+
 - (void)drawBezelOfTabBarView:(MMTabBarView *)tabBarView inRect:(NSRect)rect {
 	//Draw for our whole bounds; it'll be automatically clipped to fit the appropriate drawing area
-	NSRect bounds = [tabBarView bounds];
+	NSRect bounds = tabBarView.bounds;
     
     bounds.size.height -= 1.0;    
 
     NSGradient *gradient = nil;
     
-    if ([tabBarView isWindowActive]) {
-        // gray bar gradient
         gradient = [[NSGradient alloc] initWithColorsAndLocations:
-                        [NSColor colorWithCalibratedWhite:0.678 alpha:1.000],0.0f,
-                        [NSColor colorWithCalibratedWhite:0.821 alpha:1.000],1.0f,
+                        [self gradientBottomColorActive:NO highlighted:NO], 0.0,
+                        [self gradientBottomColorActive:NO highlighted:NO] ,1.0,
                         nil];
-    } else {
-        // light gray bar gradient
-        gradient = [[NSGradient alloc] initWithColorsAndLocations:
-                [NSColor colorWithCalibratedWhite:0.821 alpha:1.000],0.0f,
-                [NSColor colorWithCalibratedWhite:0.956 alpha:1.000],1.0f,
-                nil];
-    }
-    
+
     if (gradient) {
         [gradient drawInRect:bounds angle:270];
     
         }
 
-    bounds = [tabBarView bounds];
+    bounds = tabBarView.bounds;
         
         // draw additional separator line
-    [[NSColor colorWithCalibratedWhite:0.576 alpha:1.0] set];
+    [[self lineColor] set];
         
     [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(bounds),NSMaxY(bounds)-0.5)
                   toPoint:NSMakePoint(NSMaxX(bounds),NSMaxY(bounds)-0.5)];        
@@ -178,18 +289,18 @@
 
 - (void)drawBezelOfTabCell:(MMTabBarButtonCell *)cell withFrame:(NSRect)frame inView:(NSView *)controlView {
 
-    MMTabBarView *tabBarView = [controlView enclosingTabBarView];
+    MMTabBarView *tabBarView = controlView.enclosingTabBarView;
     MMAttachedTabBarButton *button = (MMAttachedTabBarButton *)controlView;
 
-    BOOL overflowMode = [button isOverflowButton];
-    if ([button isSliding])
+    BOOL overflowMode = button.isOverflowButton;
+    if (button.isSliding)
         overflowMode = NO;
 
     NSRect aRect = NSMakeRect(frame.origin.x+.5, frame.origin.y+0.5, frame.size.width-1.0, frame.size.height-1.0);
     if (overflowMode)
         aRect.size.width += 0.5;
     
-    aRect.size.height += 1.0f;
+    aRect.size.height += 1.0;
  
     if (overflowMode) {
         [self _drawBezelInRect:aRect withCapMask:MMBezierShapeLeftCap usingStatesOfAttachedButton:button ofTabBarView:tabBarView];
@@ -200,12 +311,12 @@
 
 -(void)drawBezelOfOverflowButton:(MMOverflowPopUpButton *)overflowButton ofTabBarView:(MMTabBarView *)tabBarView inRect:(NSRect)rect {
 
-    MMAttachedTabBarButton *lastAttachedButton = [tabBarView lastAttachedButton];
+    MMAttachedTabBarButton *lastAttachedButton = tabBarView.lastAttachedButton;
 
-    if ([lastAttachedButton isSliding])
+    if (lastAttachedButton.isSliding)
         return;
 
-    NSRect frame = [overflowButton frame];
+    NSRect frame = overflowButton.frame;
     frame.size.width += 5.0;
 
     NSRect aRect = NSMakeRect(frame.origin.x, frame.origin.y+0.5, frame.size.width-0.5, frame.size.height);
@@ -228,36 +339,24 @@
 
     capMask &= ~MMBezierShapeFillPath;
     
-    NSColor *lineColor = [NSColor colorWithCalibratedWhite:0.576 alpha:1.0];
+    NSColor *lineColor = [self lineColor];
 
-    CGFloat radius = MIN(6.0, 0.5f * MIN(NSWidth(aRect), NSHeight(aRect)))-0.5;
+    CGFloat radius = MIN(6.0, 0.5 * MIN(NSWidth(aRect), NSHeight(aRect)))-0.5;
 
         // fill
     NSBezierPath *fillPath = [NSBezierPath bezierPathWithCardInRect:aRect radius:radius capMask:capMask|MMBezierShapeFillPath];
 
     NSGradient *gradient = nil;
 
-    if ([tabBarView isWindowActive]) {
-        if ([button state] == NSOnState) {
-              gradient = [[NSGradient alloc] initWithStartingColor:[NSColor whiteColor] endingColor:[NSColor colorWithDeviceWhite:0.929 alpha:1.000]];
-        } else if ([button mouseHovered]) {
-        
-            gradient = [[NSGradient alloc] 
-                initWithStartingColor: [NSColor colorWithCalibratedWhite:0.80 alpha:1.0]
-                endingColor:[NSColor colorWithCalibratedWhite:0.80 alpha:1.0]];           
-        } else {
-
-            gradient = [[NSGradient alloc] 
-                initWithStartingColor:[NSColor colorWithCalibratedWhite:0.835 alpha:1.0] 
-                endingColor:[NSColor colorWithCalibratedWhite:0.843 alpha:1.0]];                                
-        }
+    if (tabBarView.isWindowActive) {
+        gradient = [[NSGradient alloc] initWithStartingColor:[self gradientTopColorActive:(button.state == NSOnState) highlighted:(button.mouseHovered)] endingColor:[self gradientBottomColorActive:(button.state == NSOnState) highlighted:(button.mouseHovered)]];
 
         if (gradient != nil) {
-            [gradient drawInBezierPath:fillPath angle:90.0f];
+            [gradient drawInBezierPath:fillPath angle:90.0];
             gradient = nil;
             }
     } else {
-        [[NSColor windowBackgroundColor] set];
+        [NSColor.windowBackgroundColor set];
         NSRectFill(aRect);
     }
     
@@ -267,10 +366,10 @@
     [lineColor set];
     [outlinePath stroke];
 
-    if ([button state] == NSOffState) {
+    if (button.state == NSOffState) {
     
             // draw additional separator line
-        [[NSColor colorWithCalibratedWhite:0.576 alpha:1.0] set];
+        [[self lineColor] set];
         
         [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(aRect),NSMaxY(aRect)-0.5)
                   toPoint:NSMakePoint(NSMaxX(aRect),NSMaxY(aRect)-0.5)];
@@ -278,3 +377,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

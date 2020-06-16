@@ -8,8 +8,11 @@
 
 #import "MMTabBarButton.h"
 
+#import "MMAttachedTabBarButtonCell.h"
 #import "MMProgressIndicator.h"
 #import "MMTabBarView.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @class MMAttachedTabBarButtonCell;
 
@@ -29,7 +32,7 @@
 - (instancetype)initWithFrame:(NSRect)frame NS_UNAVAILABLE;
 
 // overidden accessors (casting)
-@property (strong) MMAttachedTabBarButtonCell *cell;
+@property (nullable, strong) __kindof MMAttachedTabBarButtonCell *cell;
 
 #pragma mark Properties
 
@@ -52,3 +55,5 @@
 - (void)slideAnimationDidEnd;
 
 @end
+
+NS_ASSUME_NONNULL_END

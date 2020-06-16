@@ -10,6 +10,8 @@
 
 #import "MMAttachedTabBarButton.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation MMAttachedTabBarButtonCell
 
 @synthesize isOverflowButton = _isOverflowButton;
@@ -35,7 +37,7 @@
 #pragma mark -
 #pragma mark NSCopying
 
-- (instancetype)copyWithZone:(NSZone *)zone {
+- (instancetype)copyWithZone:(nullable NSZone *)zone {
     
     MMAttachedTabBarButtonCell *cellCopy = [super copyWithZone:zone];
     if (cellCopy) {
@@ -51,14 +53,14 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder {
 	[super encodeWithCoder:aCoder];
 
-	if ([aCoder allowsKeyedCoding]) {
+	if (aCoder.allowsKeyedCoding) {
         [aCoder encodeBool:_isOverflowButton forKey:@"MMAttachedTabBarButtonCellIsOverflowButton"];
 	}
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
 	if ((self = [super initWithCoder:aDecoder])) {
-		if ([aDecoder allowsKeyedCoding]) {
+		if (aDecoder.allowsKeyedCoding) {
             
             _isOverflowButton = [aDecoder decodeBoolForKey:@"MMAttachedTabBarButtonCellIsOverflowButton"];
 		}
@@ -67,3 +69,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

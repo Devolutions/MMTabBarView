@@ -11,15 +11,14 @@
 #import "MMOverflowPopUpButtonCell.h"
 // #import "MMTabBarView.h"
 
-#define TIMER_INTERVAL 1.0 / 15.0
-#define ANIMATION_STEP 0.033f
+NS_ASSUME_NONNULL_BEGIN
 
 #define StaticImage(name) \
 static NSImage* _static##name##Image() \
 { \
     static NSImage* image = nil; \
     if (!image) \
-        image = [[NSImage alloc] initByReferencingFile:[[NSBundle bundleForClass:[MMOverflowPopUpButtonCell class]] pathForImageResource:@#name]]; \
+		image = [[NSBundle bundleForClass:MMOverflowPopUpButtonCell.class] imageForResource:@#name]; \
     return image; \
 }
 
@@ -37,12 +36,12 @@ StaticImage(overflowImagePressed)
 @dynamic secondImageAlpha;
 @synthesize isAnimating = _isAnimating;
 
-+ (Class)cellClass {
-    return [MMOverflowPopUpButtonCell class];
++ (nullable Class)cellClass {
+    return MMOverflowPopUpButtonCell.class;
 }
 
 - (instancetype)initWithFrame:(NSRect)frameRect pullsDown:(BOOL)flag {
-	if (self = [super initWithFrame:frameRect pullsDown:YES]) {
+	if ((self = [super initWithFrame:frameRect pullsDown:YES]) != nil) {
     
         _isAnimating = NO;
     
@@ -61,7 +60,7 @@ StaticImage(overflowImagePressed)
 }
 
 
-- (void)viewWillMoveToSuperview:(NSView *)newSuperview {
+- (void)viewWillMoveToSuperview:(nullable NSView *)newSuperview {
     [super viewWillMoveToSuperview:newSuperview];
     
     [self _stopCellAnimationIfNeeded];
@@ -74,7 +73,7 @@ StaticImage(overflowImagePressed)
     [self _startCellAnimationIfNeeded];
 }
 
-- (void)viewWillMoveToWindow:(NSWindow *)newWindow {
+- (void)viewWillMoveToWindow:(nullable NSWindow *)newWindow {
 
     [super viewWillMoveToWindow:newWindow];
     
@@ -117,13 +116,13 @@ StaticImage(overflowImagePressed)
 #pragma mark -
 #pragma mark Interfacing Cell
 
-- (NSImage *)secondImage {
-    return [[self cell] secondImage];
+- (nullable NSImage *)secondImage {
+    return [self.cell secondImage];
 }
 
-- (void)setSecondImage:(NSImage *)anImage {
+- (void)setSecondImage:(nullable NSImage *)anImage {
 
-    [[self cell] setSecondImage:anImage];
+    [self.cell setSecondImage:anImage];
     
     if (!anImage) {
         [self _stopCellAnimationIfNeeded];
@@ -135,13 +134,13 @@ StaticImage(overflowImagePressed)
 #pragma mark -
 #pragma mark Animation
 
-+ (id)defaultAnimationForKey:(NSString *)key {
++ (nullable id)defaultAnimationForKey:(NSString *)key {
 
     if ([key isEqualToString:@"isAnimating"]) {
         CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"secondImageAlpha"];
-        animation.fromValue = [NSNumber numberWithFloat:0.0f];
+        animation.fromValue = [NSNumber numberWithFloat:0.0];
         animation.toValue = [NSNumber numberWithFloat:1.0];
-        animation.duration = 1.0f;
+        animation.duration = 1.0;
         animation.autoreverses = YES;    
         animation.repeatCount = CGFLOAT_MAX;
         animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
@@ -169,12 +168,12 @@ StaticImage(overflowImagePressed)
 #pragma mark -
 #pragma mark Bezel Drawing
 
-- (MMCellBezelDrawingBlock)bezelDrawingBlock {
-    return [[self cell] bezelDrawingBlock];
+- (nullable MMCellBezelDrawingBlock)bezelDrawingBlock {
+    return [self.cell bezelDrawingBlock];
 }
 
-- (void)setBezelDrawingBlock:(MMCellBezelDrawingBlock)aBlock {
-    [[self cell] setBezelDrawingBlock:aBlock];
+- (void)setBezelDrawingBlock:(nullable MMCellBezelDrawingBlock)aBlock {
+    [self.cell setBezelDrawingBlock:aBlock];
 }
 
 #pragma mark -
@@ -184,7 +183,7 @@ StaticImage(overflowImagePressed)
 	[super encodeWithCoder:aCoder];
 }
 
-- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+- (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
 	if ((self = [super initWithCoder:aDecoder])) {
 	}
 	return self;
@@ -195,17 +194,17 @@ StaticImage(overflowImagePressed)
 
 - (void)_startCellAnimationIfNeeded {
 
-    if ([self window] == nil || [self isHidden] || NSEqualRects(NSZeroRect, [self frame]))
+    if (self.window == nil || self.isHidden || NSEqualRects(NSZeroRect, self.frame))
         return;
 
-    if ([[self cell] secondImage] == nil)
+    if ([self.cell secondImage] == nil)
         return;
     
     [self _startCellAnimation];
 }
 
 - (void)_startCellAnimation {
-    [self animator].isAnimating = YES;
+    [self.animator setIsAnimating:YES];
 }
 
 - (void)_stopCellAnimationIfNeeded {
@@ -220,12 +219,18 @@ StaticImage(overflowImagePressed)
 }
 
 - (CGFloat)secondImageAlpha {
-    return [[self cell] secondImageAlpha];
+    return [self.cell secondImageAlpha];
 }
 
 - (void)setSecondImageAlpha:(CGFloat)value {
-    [[self cell] setSecondImageAlpha:value];
-    [self updateCell:[self cell]];
+	MMOverflowPopUpButtonCell* const cell = self.cell;
+	if (cell == nil) {
+		return;
+	}
+    [cell setSecondImageAlpha:value];
+    [self updateCell:cell];
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -6,9 +6,15 @@
 //  Copyright (c) 2016 Michael Monscheuer. All rights reserved.
 //
 
+#if __has_feature(modules)
+@import Cocoa;
+#else
 #import <Cocoa/Cocoa.h>
+#endif
 
 #import "MMOverflowPopUpButton.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @class MMImageTransitionAnimation;
 
@@ -21,11 +27,13 @@
 	
 }
 
-@property (copy) MMCellBezelDrawingBlock bezelDrawingBlock;
+@property (nullable, copy) MMCellBezelDrawingBlock bezelDrawingBlock;
 @property (strong) NSImage *image;
-@property (strong) NSImage *secondImage;
+@property (nullable, strong) NSImage *secondImage;
 @property (assign) CGFloat secondImageAlpha;
 
 - (void)drawImage:(NSImage *)image withFrame:(NSRect)frame inView:(NSView *)controlView alpha:(CGFloat)alpha;
 
 @end
+
+NS_ASSUME_NONNULL_END
