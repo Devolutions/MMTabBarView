@@ -680,6 +680,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDragOperation)tabView:(NSTabView *)aTabView validateSlideOfProposedItem:(NSTabViewItem *)tabViewItem proposedIndex:(NSUInteger)proposedIndex inTabBarView:(MMTabBarView *)tabBarView;
 - (BOOL)tabView:(NSTabView *)aTabView shouldAllowTabViewItem:(NSTabViewItem *)tabViewItem toLeaveTabBarView:(MMTabBarView *)tabBarView;
 - (void)tabView:(NSTabView*)aTabView didDropTabViewItem:(NSTabViewItem *)tabViewItem inTabBarView:(MMTabBarView *)tabBarView;
+- (void)tabView:(NSTabView*)aTabView draggingEndedForTabViewItem:(NSTabViewItem*)tabViewItem;
 
     // "Spring-loaded" tabs methods
 - (NSArray<NSPasteboardType> *)allowedDraggedTypesForTabView:(NSTabView *)aTabView;

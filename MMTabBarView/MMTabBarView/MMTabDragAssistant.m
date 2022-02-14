@@ -790,6 +790,9 @@ static MMTabDragAssistant *sharedDragAssistant = nil;
             
             lastDestinationIndex = NSNotFound;
             
+            if (delegate && [delegate respondsToSelector:@selector(tabView:draggingEndedForTabViewItem:)])
+                [delegate tabView:tabView draggingEndedForTabViewItem:tabViewItem];
+            
             break;
         }
     }
