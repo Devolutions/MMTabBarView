@@ -102,9 +102,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)mouseExited:(NSEvent *)event {
     _mouseHovered = NO;
-    
-    // [RDMM-3028] This very often crashed in macOS 12.3 beta. Commenting this does not seem to have any observable impact. - XFortin 14/02/2022
-    //[(NSControl *)self.controlView updateCell:self];
+    // Call this later or else MacOS 12.3 throws exception
+    [self.controlView performSelectorOnMainThread:@selector(updateCell:) withObject:self waitUntilDone:NO];
 }
 
 #pragma mark -

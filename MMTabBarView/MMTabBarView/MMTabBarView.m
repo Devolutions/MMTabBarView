@@ -418,6 +418,9 @@ static NSMutableDictionary<NSString*, Class <MMTabStyle>> *registeredStyleClasse
         correctedIndex = numberOfTabs;
     }
     
+    if (_delegate && [_delegate respondsToSelector:@selector(tabView:willMoveTabViewItem:toIndex:)])
+        [_delegate tabView:_tabView willMoveTabViewItem:anItem toIndex:correctedIndex];
+    
     [self setIsReorderingTabViewItems:YES];
     
     [_tabView removeTabViewItem:anItem];
