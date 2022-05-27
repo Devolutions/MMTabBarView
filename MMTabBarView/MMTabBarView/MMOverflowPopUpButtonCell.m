@@ -142,7 +142,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(NSRect)_imageRectForBounds:(NSRect)theRect forImage:(NSImage *)anImage {
     
     // calculate rect
-    NSRect drawingRect = [self drawingRectForBounds:theRect];
+    // [RDMM-3225] When doing this, the image ended up being drawn out of bounds, and so was barely visible. - XFortin 27/05/2022
+//    NSRect drawingRect = [self drawingRectForBounds:theRect];
+    NSRect drawingRect = theRect;
         
     NSSize imageSize = anImage.size;
     

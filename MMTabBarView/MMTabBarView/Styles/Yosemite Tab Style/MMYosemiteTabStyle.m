@@ -266,8 +266,8 @@ StaticImage(YosemiteTabNewPressed)
         
         NSRect aRect = NSMakeRect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
         aRect.size.width += 5.0;
-//        aRect.origin.y += 1;
-//        aRect.size.height -= 2;
+        aRect.origin.y += 1;
+        aRect.size.height -= 2;
         
         [self _drawCardBezelInRect:aRect withCapMask:MMBezierShapeRightCap|MMBezierShapeFlippedVertically usingStatesOfAttachedButton:lastAttachedButton ofTabBarView:tabBarView];
         
