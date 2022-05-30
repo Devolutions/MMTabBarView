@@ -86,9 +86,14 @@
 
 - (void)addDefaultTabs {
 
-    [self addNewTabWithTitle:@"Tab"];
-    [self addNewTabWithTitle:@"Bar"];
-    [self addNewTabWithTitle:@"View"];           
+    [self addNewTabWithTitle:@"Relatively long title one"];
+    [self addNewTabWithTitle:@"Relatively long title two"];
+    [self addNewTabWithTitle:@"Relatively long title three"];
+    [self addNewTabWithTitle:@"Relatively long title four"];
+    [self addNewTabWithTitle:@"Relatively long title five"];
+    [self addNewTabWithTitle:@"Relatively long title six"];
+    [self addNewTabWithTitle:@"Relatively long title seven"];
+    [self addNewTabWithTitle:@"Relatively long title eight"];
 }
 
 - (IBAction)addNewTab:(id)sender {
@@ -396,6 +401,15 @@
 
 	[NSUserDefaults.standardUserDefaults setObject:[NSNumber numberWithBool:state]
 	 forKey:@"SizeToFit"];
+}
+
+- (IBAction)configTabNeverCropTitle:(id)sender {
+    NSControlStateValue const state = [(NSButton*) sender state];
+    
+    [tabBar setNeverCropButtonsTitle:state];
+    
+    [NSUserDefaults.standardUserDefaults setObject:[NSNumber numberWithBool:state]
+     forKey:@"NeverCropTitle"];
 }
 
 - (void)configTearOffStyle:(id)sender {
@@ -729,6 +743,7 @@
 	[button_hideForSingleTab setState:[defaults boolForKey:@"HideForSingleTab"]];
 	[button_showAddTab setState:[defaults boolForKey:@"ShowAddTabButton"]];
 	[button_sizeToFit setState:[defaults boolForKey:@"SizeToFit"]];
+    [button_neverCropTitle setState:[defaults boolForKey:@"NeverCropTitle"]];
 	[button_useOverflow setState:[defaults boolForKey:@"UseOverflowMenu"]];
 	[button_automaticallyAnimate setState:[defaults boolForKey:@"AutomaticallyAnimates"]];
 	[button_allowScrubbing setState:[defaults boolForKey:@"AllowScrubbing"]];
@@ -746,6 +761,7 @@
 	[self configTabMaxWidth:textField_maxWidth];
 	[self configTabOptimumWidth:textField_optimumWidth];
 	[self configTabSizeToFit:button_sizeToFit];
+    [self configTabNeverCropTitle:button_neverCropTitle];
 	[self configTearOffStyle:popUp_tearOff];
 	[self configUseOverflowMenu:button_useOverflow];
 	[self configAutomaticallyAnimates:button_automaticallyAnimate];

@@ -83,6 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 	BOOL                            _hideForSingleTab;
 	BOOL                            _showAddTabButton;
 	BOOL                            _sizeButtonsToFit;
+    BOOL                            _neverCropButtonsTitle;
 	BOOL                            _useOverflowMenu;
 	BOOL                            _alwaysShowActiveTab;
 	BOOL                            _allowsScrubbing;
@@ -527,6 +528,11 @@ NS_ASSUME_NONNULL_BEGIN
  *  Size tab bar buttons to fit
  */
 @property (assign) BOOL sizeButtonsToFit;
+
+/*
+ * Never crop buttons title
+ */
+@property (assign) BOOL neverCropButtonsTitle;
 
 /**
  *  Should use of overflow menu

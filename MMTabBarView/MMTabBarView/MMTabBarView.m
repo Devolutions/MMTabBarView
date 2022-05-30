@@ -1011,6 +1011,15 @@ static NSMutableDictionary<NSString*, Class <MMTabStyle>> *registeredStyleClasse
     [self setNeedsUpdate:YES];
 }
 
+- (BOOL)neverCropButtonsTitle {
+    return _neverCropButtonsTitle;
+}
+
+-(void)setNeverCropButtonsTitle:(BOOL)value {
+    _neverCropButtonsTitle = value;
+    [self setNeedsUpdate:YES];
+}
+
 - (BOOL)useOverflowMenu {
 	return _useOverflowMenu;
 }

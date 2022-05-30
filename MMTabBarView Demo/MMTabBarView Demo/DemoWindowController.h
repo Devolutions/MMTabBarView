@@ -47,7 +47,8 @@
 	IBOutlet NSButton				*button_automaticallyAnimate;
 	IBOutlet NSButton				*button_allowScrubbing;
 	IBOutlet NSButton				*button_sizeToFit;
-	IBOutlet NSTextField			*textField_minWidth;
+    IBOutlet NSButton               *button_neverCropTitle;
+    IBOutlet NSTextField			*textField_minWidth;
 	IBOutlet NSTextField			*textField_maxWidth;
 	IBOutlet NSTextField			*textField_optimumWidth;
     IBOutlet NSButton               *button_hasBoldSelection;

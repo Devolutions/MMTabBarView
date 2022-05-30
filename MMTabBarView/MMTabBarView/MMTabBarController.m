@@ -92,15 +92,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @returns    The smallest possible sum for the array
  */
 static NSInteger potentialMinimumForArray(NSArray<NSNumber *> *array, NSInteger minimum){
-	NSInteger runningTotal = 0;
-	NSInteger count = array.count;
+    NSInteger runningTotal = 0;
+    NSInteger count = array.count;
 
-	for(NSInteger i = 0; i < count; i++) {
-		NSInteger currentValue = array[i].integerValue;
-		runningTotal += MIN(currentValue, minimum);
-	}
+    for(NSInteger i = 0; i < count; i++) {
+        NSInteger currentValue = array[i].integerValue;
+        runningTotal += MIN(currentValue, minimum);
+    }
 
-	return runningTotal;
+    return runningTotal;
 }
 
 - (BOOL)menu:(NSMenu *)menu updateItem:(NSMenuItem *)menuItem atIndex:(NSInteger)index shouldCancel:(BOOL)shouldCancel {
@@ -161,19 +161,23 @@ static NSInteger potentialMinimumForArray(NSArray<NSNumber *> *array, NSInteger 
 
 		if (_tabBarView.orientation == MMTabBarHorizontalOrientation) {
 			// Determine button width
-			if (_tabBarView.sizeButtonsToFit) {
-				width = currentButton.desiredWidth;
-				if (width > _tabBarView.buttonMaxWidth) {
-					width = _tabBarView.buttonMaxWidth;
-				}
+            if (_tabBarView.neverCropButtonsTitle) {
+                width = currentButton.desiredWidth;
+            } else {
+                if (_tabBarView.sizeButtonsToFit) {
+                    width = currentButton.desiredWidth;
+                    if (width > _tabBarView.buttonMaxWidth) {
+                        width = _tabBarView.buttonMaxWidth;
+                    }
+                }
+                else if (_tabBarView.resizeTabsToFitTotalWidth) {
+                    width = availableWidth / (CGFloat)buttonCount;
+                    if (width < _tabBarView.buttonMinWidth)
+                        width = _tabBarView.buttonMinWidth;
+                } else {
+                    width = _tabBarView.buttonOptimumWidth;
+                }
             }
-            else if (_tabBarView.resizeTabsToFitTotalWidth) {
-                width = availableWidth / (CGFloat)buttonCount;
-                if (width < _tabBarView.buttonMinWidth)
-					width = _tabBarView.buttonMinWidth;
-			} else {
-				width = _tabBarView.buttonOptimumWidth;
-			}
 
 			width = ceil(width);
 
@@ -190,7 +194,11 @@ static NSInteger potentialMinimumForArray(NSArray<NSNumber *> *array, NSInteger 
 
 					for(j = 0; j < buttonCount; j++) {
 						CGFloat desiredWidth = [buttons[j] desiredWidth];
-						[newWidths addObject:[NSNumber numberWithDouble:(desiredWidth < averageWidth && _tabBarView.sizeButtonsToFit) ? desiredWidth : averageWidth]];
+                        if (_tabBarView.neverCropButtonsTitle) {
+                            [newWidths addObject:[NSNumber numberWithDouble:desiredWidth]];
+                        } else {
+                            [newWidths addObject:[NSNumber numberWithDouble:(desiredWidth < averageWidth && _tabBarView.sizeButtonsToFit) ? desiredWidth : averageWidth]];
+                        }
 					}
 
 					break;
@@ -204,11 +212,23 @@ static NSInteger potentialMinimumForArray(NSArray<NSNumber *> *array, NSInteger 
 					totalOccupiedWidth = [(NSNumber *) [newWidths valueForKeyPath:@"@sum.intValue"] integerValue];
                     if (newWidths.count > 0)
                         totalOccupiedWidth += (newWidths.count-1);
-
+                    
 					/* Can I squeeze it in without violating min button width? This is the width we would take up
 					 * if every button so far were at the control minimum size (or their current size if that is less than the control minimum).
 					 */
-					if ((potentialMinimumForArray(newWidths, _tabBarView.buttonMinWidth) + MIN(width, _tabBarView.buttonMinWidth)) <= availableWidth) {
+                    NSInteger currentWidth = 0;
+                    if (_tabBarView.neverCropButtonsTitle) {
+                        for (NSUInteger i = 0; i < newWidths.count; i++) {
+                            NSInteger newWidth = newWidths[i].integerValue;
+                            currentWidth += newWidth;
+                        }
+                        
+                        currentWidth += width;
+                    } else {
+                        currentWidth = potentialMinimumForArray(newWidths, _tabBarView.buttonMinWidth) + MIN(width, _tabBarView.buttonMinWidth);
+                    }
+                    
+					if (currentWidth <= availableWidth) {
 						/* It's definitely possible for buttons so far to be visible.
 						 * Shrink other buttons to allow this one to fit
 						 */
